@@ -15,50 +15,87 @@ const u={iron:false,wire:false,shake:false};
 const liq=()=>P.A.melt;
 const journal=[],hist=[];
 
-/* ---------- carte en perspective ---------- */
-const U=40,C30=.866,S30=.5,OX=330,OY=50;
-const iso=(x,y,z=0)=>[OX+(x-y)*C30*U,OY+(x+y)*S30*U-z];
-const pt=a=>a.map(v=>v.map(n=>n.toFixed(1)).join(',')).join(' ');
+/* ---------- carte : vue de dessus légèrement inclinée, support mains libres ---------- */
+const K=10;                       // px par mm
+const RY=.62;                     // écrasement vertical des ellipses (inclinaison)
+const POS=[[250,205],[400,205],[250,305],[400,305]];
+const PADR=[13,13,19,13];
+const LABOFF=[[-80,-96],[10,-96],[-80,34],[28,30]];
+const mono='ui-monospace,Menlo,Consolas,monospace';
 (function(){
   const g=$('#board');
-  el('polygon',{points:pt([iso(.3,.3,-14),iso(9.3,.3,-14),iso(9.3,6.3,-14),iso(.3,6.3,-14)]),fill:'#0b1f2e',opacity:.12},g);
-  el('polygon',{points:pt([iso(0,6),iso(9,6),iso(9,6,-12),iso(0,6,-12)]),fill:'#1b6b4a'},g);
-  el('polygon',{points:pt([iso(9,0),iso(9,6),iso(9,6,-12),iso(9,0,-12)]),fill:'#14563b'},g);
-  el('polygon',{points:pt([iso(0,0),iso(9,0),iso(9,6),iso(0,6)]),fill:'#35a874',stroke:'#1f7a54','stroke-width':1.5},g);
-  // plan de masse (pad 4) : zone de cuivre sous le pad
-  const gp=[iso(3.7,3.1),iso(5.5,3.1),iso(5.5,4.7),iso(3.7,4.7)];
-  el('polygon',{points:pt(gp),fill:'#2d9368',stroke:'#e0955a','stroke-width':1.2,'stroke-dasharray':'4 3',opacity:.9},g);
-  // grand pad de cuivre (pad 3)
-  const [bx,by]=iso(2.5,3.8);el('ellipse',{cx:bx,cy:by,rx:19,ry:10.5,fill:'#d9874c',opacity:.9},g);
-  for(let r=0;r<2;r++)for(let i=0;i<11;i++){const x=.8+i*.75+(r?.375:0),y=5.15+r*.45;if(x>8.4)continue;const [sx,sy]=iso(x,y);
-    el('ellipse',{cx:sx,cy:sy,rx:7,ry:4,fill:'#e0955a'},g);el('ellipse',{cx:sx,cy:sy,rx:3.1,ry:1.8,fill:'#0b1f2e'},g)}
-  const flat=(x,y,txt,size,fill,op)=>{const [sx,sy]=iso(x,y);const t=el('text',{transform:`translate(${sx} ${sy}) matrix(.866 .5 -.866 .5 0 0)`,'text-anchor':'middle','dominant-baseline':'central','font-size':size,'font-weight':700,fill,opacity:op||1,'font-family':'ui-monospace,Menlo,Consolas,monospace'},g);t.textContent=txt};
-  [[1.9,1.5,5.5,2.1,'R1'],[1.9,3.5,5.5,4.1,'R2']].forEach(([x1,y1,x2,y2,n])=>{
-    el('polygon',{points:pt([iso(x1,y1),iso(x2,y1),iso(x2,y2),iso(x1,y2)]),fill:'none',stroke:'#fff','stroke-width':1.6,'stroke-linejoin':'round',opacity:.9},g);
-    flat(3.7,(y1+y2)/2,n,15,'#fff',.95)});
-  [[1.2,1.8,'1'],[6.2,1.8,'2'],[1.2,3.8,'3'],[6.2,3.8,'4']].forEach(([x,y,n])=>flat(x,y,n,15,'#fff',.95));
-  flat(4.5,.55,'LAB BRASURE · PRATIQUE',12,'#fff',.7);
-  flat(4.6,5.0,'',10,'#fff',.7);
+  // support mains libres : base en croix, montants, mâchoires crantées, repose-fer à ressort
+  el('ellipse',{cx:380,cy:470,rx:330,ry:14,fill:'#0b1f2e',opacity:.10},g);
+  el('rect',{x:90,y:452,width:580,height:22,rx:11,fill:'#1c1d20'},g);
+  el('polygon',{points:'352,404 408,404 446,454 314,454',fill:'#2a2c31'},g);
+  [[96,466],[646,466]].forEach(([x,y])=>el('ellipse',{cx:x+9,cy:y+8,rx:12,ry:5,fill:'#0b0c0e'},g));
+  [156,606].forEach(x=>{
+    el('rect',{x:x-8,y:300,width:16,height:156,fill:'#0f9d94'},g);
+    el('rect',{x:x-8,y:300,width:5,height:156,fill:'#fff',opacity:.18},g);
+    el('circle',{cx:x,cy:322,r:14,fill:'#0b7f78',stroke:'#085c57','stroke-width':1.5},g);
+    el('circle',{cx:x,cy:322,r:5,fill:'#cfd5da'},g);
+  });
+  // repose-fer à ressort (à droite)
+  el('rect',{x:690,y:330,width:12,height:124,fill:'#0f9d94'},g);
+  for(let i=0;i<9;i++){const y=338+i*11;el('ellipse',{cx:696,cy:y,rx:26,ry:8,fill:'none',stroke:'#4b535c','stroke-width':3.2},g);el('path',{d:`M670 ${y} A26 8 0 0 0 722 ${y}`,fill:'none',stroke:'#aab3bb','stroke-width':1.5,opacity:.8},g)}
+  // carte : tranche, face, masque vert
+  el('rect',{x:162,y:350,width:440,height:14,rx:3,fill:'#0d3a28'},g);
+  el('rect',{x:162,y:354,width:440,height:3,fill:'#c8a15a',opacity:.8},g);
+  el('rect',{x:162,y:108,width:440,height:250,rx:9,fill:'url(#maskg)',stroke:'#0f4a30','stroke-width':1.6},g);
+  el('rect',{x:162,y:108,width:440,height:250,rx:9,fill:'url(#fr4)'},g);
+  // plan de masse (pad 4)
+  el('rect',{x:336,y:262,width:128,height:84,rx:6,fill:'#2f9a6c',stroke:'#e0955a','stroke-width':1.4,'stroke-dasharray':'5 3'},g);
+  // pistes (cuivre sous le vernis)
+  const tr=(d,w)=>{el('path',{d,fill:'none',stroke:'#0f4a30','stroke-width':(w||7)+3,'stroke-linecap':'round','stroke-linejoin':'round'},g);el('path',{d,fill:'none',stroke:'#58c995','stroke-width':w||7,'stroke-linecap':'round','stroke-linejoin':'round'},g)};
+  tr('M250 205 H205 L182 182 V140');
+  tr('M400 205 H468 L488 185 H520');
+  tr('M250 305 L232 323 H200');
+  tr('M464 305 H500 L516 321 H520',8);
+  tr('M520 153 H586',5);tr('M520 217 H560 L586 243',5);tr('M520 281 H586',5);
+  // pastilles de l'embase (rangée de 2x5), pattes qui dépassent, certaines déjà brasées
+  const HX=[520,570],HY=[153,185,217,249,281,313];
+  HX.forEach((x,c)=>HY.forEach((y,r)=>{
+    el('ellipse',{cx:x,cy:y,rx:10,ry:10*RY,fill:'#e0955a',stroke:'#a8642e','stroke-width':1},g);
+    const done=(r<2);
+    if(r<5){
+      if(done){
+        el('path',{d:`M${x-9} ${y+1} Q${x-5} ${y-4} ${x-1.5} ${y-17} L${x+1.5} ${y-17} Q${x+5} ${y-4} ${x+9} ${y+1} A9 5.6 0 0 1 ${x-9} ${y+1}Z`,fill:'#c3ccd3',stroke:'#8b97a1','stroke-width':.8},g);
+        el('path',{d:`M${x-4} ${y-2} q1 -7 2 -13`,fill:'none',stroke:'#fff','stroke-width':1.6,'stroke-linecap':'round',opacity:.8},g);
+      }else{
+        el('ellipse',{cx:x,cy:y,rx:3.4,ry:2,fill:'#0b1f2e'},g);
+        el('rect',{x:x-2.5,y:y-30,width:5,height:30,fill:'url(#legg2)'},g);
+        el('ellipse',{cx:x,cy:y-30,rx:2.5,ry:1.4,fill:'#eef2f5'},g);
+      }
+    }else el('ellipse',{cx:x,cy:y,rx:3.4,ry:2,fill:'#0b1f2e'},g);
+  }));
+  // trous de fixation
+  [[190,134],[574,134],[190,332],[574,332]].forEach(([x,y])=>{el('ellipse',{cx:x,cy:y,rx:11,ry:7,fill:'#e0955a'},g);el('ellipse',{cx:x,cy:y,rx:6,ry:3.7,fill:'#e8edf2',stroke:'#0f4a30','stroke-width':1.4},g)});
+  // gros pad de cuivre nu (pad 3)
+  el('ellipse',{cx:250,cy:305,rx:36,ry:36*RY,fill:'#d9874c',opacity:.95},g);
+  // vias
+  [[182,140],[520,321]].forEach(([x,y])=>{el('ellipse',{cx:x,cy:y,rx:6,ry:3.7,fill:'#e0955a'},g);el('ellipse',{cx:x,cy:y,rx:2.4,ry:1.5,fill:'#0b1f2e'},g)});
+  // sérigraphie
+  const txt=(x,y,t,s,o)=>{const e=el('text',{x,y,'font-size':s,'font-weight':700,fill:'#fff',opacity:o||.9,'font-family':mono},g);e.textContent=t;return e};
+  txt(214,236,'1',13);txt(364,236,'2',13);txt(204,348,'3',13);txt(380,340,'4',13);
+  txt(374,282,'GND',10,.75);txt(514,128,'J1',11);txt(196,118,'LAB BRASAGE',10,.7);
+  el('rect',{x:497,y:134,width:98,height:196,rx:4,fill:'none',stroke:'#fff','stroke-width':1.4,opacity:.7},g);
 })();
-const POS=[[2.5,1.8],[4.5,1.8],[2.5,3.8],[4.5,3.8]].map(p=>iso(p[0],p[1]));
-const PADR=[11,11,15,11];
-const LABOFF=[[-40,-84],[26,30],[-170,-40],[26,28]];
 
 /* ---------- éléments des pads ---------- */
 const E=[];
 POS.forEach((p,i)=>{
   const g=el('g',{transform:`translate(${p[0]} ${p[1]})`},$('#pads'));
-  const glow=el('circle',{r:40,fill:'url(#heatg)',opacity:0,cy:-6},g);
-  const burn=el('ellipse',{rx:PADR[i]+4,ry:(PADR[i]+4)*.57,fill:'#4a2b17',opacity:0},g);
-  const ring=el('ellipse',{rx:PADR[i],ry:PADR[i]*.57,fill:'#e0955a'},g);
-  el('ellipse',{rx:4.6,ry:2.7,fill:'#0b1f2e'},g);
-  const selr=el('ellipse',{rx:PADR[i]+10,ry:(PADR[i]+10)*.57,fill:'none',stroke:'#0f766e','stroke-width':2,'stroke-dasharray':'5 4'},g);
-  const leg=el('rect',{x:-4,y:-38,width:8,height:38,fill:'url(#legg)'},g);
-  const legTop=el('ellipse',{cy:-38,rx:4,ry:2,fill:'#eef2f5'},g);
+  const glow=el('ellipse',{rx:58,ry:36,fill:'url(#heatg)',opacity:0,cy:-4},g);
+  const burn=el('ellipse',{rx:PADR[i]+4,ry:(PADR[i]+4)*RY,fill:'#4a2b17',opacity:0},g);
+  const ring=el('ellipse',{rx:PADR[i],ry:PADR[i]*RY,fill:'#e0955a',stroke:'#a8642e','stroke-width':1},g);
+  el('ellipse',{rx:4.6,ry:2.8,fill:'#0b1f2e'},g);
+  const selr=el('ellipse',{rx:PADR[i]+10,ry:(PADR[i]+10)*RY,fill:'none',stroke:'#0f766e','stroke-width':2,'stroke-dasharray':'5 4'},g);
+  const leg=el('rect',{x:-4,y:-46,width:8,height:46,fill:'url(#legg2)'},g);
+  const legTop=el('ellipse',{cy:-46,rx:4,ry:2,fill:'#eef2f5'},g);
   const sol=el('path',{d:'',fill:'#c5ced6',stroke:'#8b97a1','stroke-width':1,opacity:0},g);
   const shine=el('path',{d:'',fill:'none',stroke:'#fff','stroke-width':2.5,'stroke-linecap':'round',opacity:0},g);
   const crack=el('path',{d:'',fill:'none',stroke:'#3b434b','stroke-width':1.2,opacity:0},g);
-  const hit=el('ellipse',{cx:0,cy:-14,rx:30,ry:38,fill:'transparent',style:'cursor:pointer'},g);
+  const hit=el('ellipse',{cx:0,cy:-18,rx:34,ry:44,fill:'transparent',style:'cursor:pointer'},g);
   hit.addEventListener('pointerdown',e=>{e.preventDefault();select(i)});
   const c=el('g',{opacity:0},$('#callouts'));
   const ln=el('line',{x1:p[0],y1:p[1]-14,x2:p[0],y2:p[1]-14,stroke:'#1e293b','stroke-width':1.2},c);
@@ -110,12 +147,12 @@ function bodyPath(sp,rl,kx,ky,yb){ // chemin fermé centré sur x=0 ; yb : ordon
   let d='';
   if(sp.cap){ // calotte : demi-points déjà de droite à gauche
     half.forEach((q,k)=>{d+=(k?'L':'M')+q[0].toFixed(1)+' '+(yb-q[1]).toFixed(1)});
-    const a=half[0][0];d+=`A${a.toFixed(1)} ${(a*.55).toFixed(1)} 0 0 0 ${(half[0][0]).toFixed(1)} ${yb}Z`;
+    const a=half[0][0];d+=`A${a.toFixed(1)} ${(a*.62).toFixed(1)} 0 0 0 ${(half[0][0]).toFixed(1)} ${yb}Z`;
     return d;
   }
   half.forEach((q,k)=>{d+=(k?'L':'M')+q[0].toFixed(1)+' '+(yb-q[1]).toFixed(1)});
   for(let k=n;k>=0;k--){d+='L'+(-half[k][0]).toFixed(1)+' '+(yb-half[k][1]).toFixed(1)}
-  const R=half[0][0];d+=`A${R.toFixed(1)} ${(R*.55).toFixed(1)} 0 0 0 ${R.toFixed(1)} ${yb}Z`;
+  const R=half[0][0];d+=`A${R.toFixed(1)} ${(R*.62).toFixed(1)} 0 0 0 ${R.toFixed(1)} ${yb}Z`;
   return d;
 }
 
@@ -197,8 +234,8 @@ $('#resetAll').onclick=()=>{journal.length=0;renderLog();applySettings()};
 $('#bClean').onclick=()=>{tip.Q=1};
 
 /* ---------- boucle ---------- */
-const iron=$('#sIron'),wire=$('#sWire'),smoke=$('#sSmoke'),parts=[];
-const ic={ix:POS[0][0]+75,iy:POS[0][1]-62,wx:POS[0][0]-72,wy:POS[0][1]-36},iT={x:470,y:100},iW={x:210,y:140};
+const iron=$('#sIron'),wOut=$('#wireOut'),wIn=$('#wireIn'),smoke=$('#sSmoke'),parts=[];
+const ic={ix:POS[0][0]+80,iy:POS[0][1]-66,wx:POS[0][0]-80,wy:POS[0][1]-50},iT={x:470,y:100},iW={x:210,y:140};
 let spawn=0,histAcc=0;const dummy=Phys.newTip(P);
 function frame(dt){
   tip.Q=Math.max(.15,tip.Q-0.003*dt);
@@ -220,9 +257,9 @@ function render(dt){
   const j=joints[sel],L=liq(),Tj=Math.min(j.Tp,j.Tl);
   const [px,py]=POS[sel],k=1-Math.exp(-9*dt);
   const inContact=u.iron&&!j.res,wContact=u.wire&&!j.res;
-  const tI=inContact?[px+5,py-7]:[px+75,py-62],tW=wContact?[px-6,py-9]:[px-72,py-36];
+  const tI=inContact?[px+7,py-4]:[px+80,py-66],tW=wContact?[px-9,py-7]:[px-80,py-50];
   ic.ix+=(tI[0]-ic.ix)*k;ic.iy+=(tI[1]-ic.iy)*k;ic.wx+=(tW[0]-ic.wx)*k;ic.wy+=(tW[1]-ic.wy)*k;
-  iron.setAttribute('transform',`translate(${ic.ix} ${ic.iy})`);wire.setAttribute('transform',`translate(${ic.wx} ${ic.wy})`);
+  iron.setAttribute('transform',`translate(${ic.ix} ${ic.iy}) scale(.72)`);const wd=`M96 92 C170 112 ${ic.wx-60} ${ic.wy-70} ${ic.wx} ${ic.wy}`;wOut.setAttribute('d',wd);wIn.setAttribute('d',wd);
   $('#tipPoly').setAttribute('fill',mix('#e9edf0','#d6a07a',clamp((340-tip.T)/200,0,1)*0+ (1-tip.Q)*.9));
   // pads
   joints.forEach((q,i)=>{
@@ -234,11 +271,11 @@ function render(dt){
     e.ring.setAttribute('transform',lifted?'translate(5 -5) rotate(-12)':'');
     e.ring.setAttribute('fill',mix('#e0955a','#8a5a3a',q.O*(q.V>0?0:1)*.8));
     if(sp){
-      e.sol.setAttribute('d',bodyPath(sp,P.rl,8.8,8.8,0));e.sol.setAttribute('opacity',1);
+      e.sol.setAttribute('d',bodyPath(sp,P.rl,K,K,0));e.sol.setAttribute('opacity',1);
       const liquid=q.V>0.05&&Tj>=liq();const liqf=liquid?1:clamp((Tj-(liq()-12))/12,0,1);
       const matte=q.res?clamp(q.O*2+(q.disturbed?1:0)+(q.D>.55?.45:0)+((q.th>55&&q.hadLiq)?.35:0)+(sp.cap?.5:0),0,1):0;
       e.sol.setAttribute('fill',lifted?'#7e7469':mix(mix('#cfd6dc','#9aa4ad',matte),'#ffc27a',liqf));
-            const hh=sp.h*8.8;
+            const hh=sp.h*K;
       e.shine.setAttribute('d',sp.cap?`M${(-sp.a*6.5).toFixed(1)} ${(-sp.h*5).toFixed(1)} q2 ${(-sp.h*4).toFixed(1)} 6 ${(-sp.h*6.5).toFixed(1)}`:`M${(-sp.R*6.5).toFixed(1)} -2 Q${(-sp.R*3).toFixed(1)} ${(-hh*.2).toFixed(1)} -5 ${(-hh+3).toFixed(1)}`);
       e.shine.setAttribute('opacity',(1-liqf)*(1-matte)*.7);
       if(q.disturbed&&q.res){e.crack.setAttribute('d',`M-9 ${-hh*.2} l5 ${-hh*.25} l-3 ${-hh*.2} M6 ${-hh*.15} l-4 ${-hh*.3}`);e.crack.setAttribute('opacity',1)}else e.crack.setAttribute('opacity',0);
@@ -256,8 +293,7 @@ function render(dt){
     if(q.a<=0){q.c.remove();parts.splice(i,1);continue}
     q.c.setAttribute('cx',q.x);q.c.setAttribute('cy',q.y);q.c.setAttribute('r',q.r);q.c.setAttribute('opacity',q.a*.7)}
   // loupe en coupe
-  const lk=$('#link');lk.setAttribute('x1',px+14);lk.setAttribute('y1',py-26);lk.setAttribute('x2',560);lk.setAttribute('y2',150);
-  $('#insetT').textContent='COUPE · PAD '+(sel+1);
+  $('#cutPad').textContent=sel+1;
   const sp=shapeParams(j),lifted=j.D>=1||j.res==='lifted',liquid=j.V>.05&&Tj>=L;
   $('#iOx').setAttribute('opacity',clamp(j.O,0,1)*.85);
   $('#iHeatL').setAttribute('opacity',clamp((j.Tl-25)/260,0,1)*.6);$('#iHeatP').setAttribute('opacity',clamp((j.Tp-25)/260,0,1)*.6);
@@ -347,10 +383,10 @@ function applySettings(){
   const tk=document.querySelectorAll('#volTicks span');tk[0].style.left=(w1/2)+'%';tk[1].style.left=(w1+w2/2)+'%';tk[2].style.left=(w1+w2+(100-w1-w2)/2)+'%';
   // visuels : fil, pointe, patte
   const ww=3+S.wireD*9,wi=3+S.wireD*7.5;
-  const wl=document.querySelectorAll('#sWire line');wl[0].setAttribute('stroke-width',ww+1);wl[1].setAttribute('stroke-width',ww-2);
+  $('#wireOut').setAttribute('stroke-width',S.wireD*10+1.5);$('#wireIn').setAttribute('stroke-width',S.wireD*10-1.5);
   const il=document.querySelectorAll('#iWire line');il.forEach((l,k)=>l.setAttribute('stroke-width',k%2?wi-3:wi));
-  const tw={fine:4.5,cone:8,chisel:13}[S.tip];
-  $('#tipPoly').setAttribute('points',`0,0 74,${-tw} 74,${tw}`);$('#iTipPoly').setAttribute('points',`0,0 44,${-tw*.9} 44,${tw*.9}`);
+  const tw={fine:3.4,cone:6,chisel:9}[S.tip];
+  $('#tipPoly').setAttribute('points',`0,0 60,${-tw} 60,${tw}`);$('#iTipPoly').setAttribute('points',`0,0 44,${-tw*.9} 44,${tw*.9}`);
   const lw=8*S.leadD/.8;
   E.forEach(e=>{e.leg.setAttribute('x',-lw/2);e.leg.setAttribute('width',lw);e.legTop.setAttribute('rx',lw/2)});
   $('#iLead').setAttribute('x',320-lw/2);$('#iLead').setAttribute('width',lw);
