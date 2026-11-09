@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BrasureLab – Cours et simulateur de brasage · Bac Pro CIEL</title>
+<meta name="author" content="Yahn LE PRETTRE - Formaxion Landes">
+<style>:root{--bg:#eef1f5;--card:#fff;--panel:#fff;--ink:#1e293b;--mute:#64748b;--muted:#64748b;--line:#d5dbe4;--pcb:#0f766e;--pcb-d:#0b1f2e;--brand:#0f766e;--brand2:#d5f3ef;--cu:#c8793a;--sn:#aeb8c0;--hot:#e5472b;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--err:#b91c1c;--top:#0b1f2e;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,system-ui,sans-serif}
+h1,h2,h3{font-family:system-ui,sans-serif;line-height:1.15;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding:0 18px}
+
+
+
+.tag{display:inline-block;font:500 12px ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;background:#ffffff1f;border-radius:99px;padding:4px 12px}
+
+
+
+
+
+
+section{padding:34px 0 8px}
+section h2{font-size:clamp(22px,4.5vw,30px);margin-bottom:6px;display:flex;gap:12px;align-items:center}
+section h2 .n{font:500 14px ui-monospace,monospace;background:var(--pcb);color:#fff;border-radius:6px;padding:3px 8px}
+.lead{color:var(--mute);margin:0 0 18px;max-width:720px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.grid{display:grid;gap:12px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.big{font:700 30px system-ui,sans-serif;color:var(--pcb)}
+.small{font-size:13.5px;color:var(--mute)}
+.callout{border-left:4px solid var(--warn);background:#fff7e6;border-radius:0 12px 12px 0;padding:12px 16px;margin-top:14px}
+svg{display:block;width:100%;height:auto}
+.stage{background:#e9efe9;border-radius:14px;border:1px solid var(--line)}
+button{font:600 14px system-ui,sans-serif;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px}
+button:hover{border-color:var(--pcb)}
+button.primary{background:var(--pcb);color:#fff;border-color:var(--pcb)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #7fd1ae;outline-offset:2px}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.dots button{width:38px;height:38px;padding:0;border-radius:99px;font-family:ui-monospace,monospace}
+.dots button.on{background:var(--pcb);color:#fff;border-color:var(--pcb)}
+.dots button.done{background:#d9efe4;border-color:#9fd3b9}
+.info h3{font-size:22px;margin:2px 0 6px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{font-size:13px;font-weight:600;border-radius:99px;padding:4px 11px;background:#eef2ef;border:1px solid var(--line)}
+.chip.err{background:#fdecea;border-color:#f3bcb5;color:#8f2a1f}
+.chip.ok{background:#e3f4eb;border-color:#a8d9bf;color:#0e5b3b}
+.gauge{height:14px;background:#dfe5e0;border-radius:99px;position:relative;overflow:visible;margin:8px 0 22px}
+.gauge i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,#4ea3d8,#f0b429,#e5472b);width:0}
+.gauge b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.gauge b span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font:500 11px ui-monospace;white-space:nowrap}
+.read{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:500 13px ui-monospace,monospace}
+.read em{font-style:normal;padding:2px 8px;border-radius:6px;background:#eef2ef}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{padding:8px 12px;font-size:13.5px}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.verdict{display:inline-block;font-weight:700;font-size:13px;border-radius:6px;padding:3px 9px;color:#fff}
+dl.d{margin:10px 0 0;display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:15px}
+dl.d dt{font-weight:600;color:var(--mute)} dl.d dd{margin:0}
+input[type=range]{width:100%;accent-color:var(--pcb)}
+.sw{display:flex;align-items:center;gap:10px;font-weight:600}
+.sw input{width:22px;height:22px;accent-color:var(--pcb)}
+.q{font-weight:600;font-size:18px;margin:6px 0 12px}
+.opt{display:block;width:100%;text-align:left;margin-bottom:8px;font-weight:500}
+.opt.good{background:#e3f4eb;border-color:var(--ok)} .opt.bad{background:#fdecea;border-color:var(--bad)}
+.fb{margin-top:10px;padding:10px 14px;border-radius:10px;background:#eef2ef;display:none}
+footer{padding:36px 0 50px;color:var(--mute);font-size:13.5px}
+@media(max-width:520px){dl.d{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:hover{background:#f1f5f9}
+button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}button.primary:hover{background:#0d5f58}
+select{border:1px solid var(--line);border-radius:5px;padding:5px 6px;background:#fff}
+.mono{font-family:var(--mono)}.muted{color:var(--muted)}.small{font-size:12px}
+#top{background:var(--top);color:#e2e8f0;display:flex;align-items:center;gap:10px 16px;padding:8px 12px;flex-wrap:wrap}
+#top button{background:#16324a;border-color:#27475f;color:#e2e8f0}#top button:hover{background:#27475f}
+#top select{background:#16324a;border-color:#27475f;color:#e2e8f0}
+.brand{font-weight:700;font-size:15px}.brand small{font-weight:400;color:#94a3b8;margin-left:6px}.logo{color:#5eead4}
+.credit{display:block;font-size:10px;font-weight:400;color:#7f93a6;line-height:1.1}
+.grp{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.grp label{font-size:12px;color:#cbd5e1}
+.score{margin-left:auto;font-family:var(--mono);color:#5eead4;font-size:13px}
+.wrap{max-width:1100px;margin:0 auto;padding:12px}
+.stage{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#f7f9fc;touch-action:manipulation}
+.stage svg{display:block;width:100%;height:auto}
+.ov{position:absolute;left:8px;pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(15,23,42,.12);padding:6px 10px;max-width:46%}
+.ov.t{top:8px}.ov.t b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase}.ov.t span{font-size:11.5px;color:var(--muted)}
+.ov.h{top:62px;border-left:4px solid var(--brand);font-size:13px}
+.ov.h i{display:inline-block;font-style:normal;font:700 10px var(--mono);letter-spacing:.06em;background:var(--brand2);color:var(--brand);border-radius:10px;padding:0 7px;margin-bottom:2px}
+.ov.h.bad{border-left-color:var(--err)}.ov.h.bad i{background:#fee2e2;color:var(--err)}
+.ov.h.good{border-left-color:var(--ok)}.ov.h.good i{background:#dcfce7;color:var(--ok)}
+.ov.h.warn{border-left-color:var(--warn)}.ov.h.warn i{background:#ffedd5;color:var(--warn)}
+.ov.s{left:auto;right:8px;bottom:8px;top:auto;font:11px var(--mono);color:var(--muted);padding:3px 8px}
+.hud{display:grid;gap:10px;grid-template-columns:repeat(4,1fr);margin-top:10px}
+.bay{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.bay h3{margin:0 0 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.badge{display:inline-block;border-radius:10px;padding:0 8px;font:700 10px var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.b-cold{background:#dbeafe;color:#1d4ed8}.b-warm{background:#ffedd5;color:var(--warn)}.b-melt{background:#fee2e2;color:var(--err)}
+.b-idle{background:#eef2f7;color:var(--muted)}.b-ok{background:#dcfce7;color:var(--ok)}.b-bad{background:#fee2e2;color:var(--err)}
+.num{font:700 34px/1 var(--mono)}.num small{font-size:14px;font-weight:500;color:var(--muted);margin-left:4px}
+.zones{display:flex;height:12px;border-radius:6px;overflow:hidden;border:1px solid #94a3b8;margin-top:10px;position:relative}
+.zones i{display:block;height:100%}
+.mk{position:absolute;top:-4px;bottom:-4px;width:3px;background:#0f172a;border-radius:2px;left:0}
+.ticks{position:relative;height:14px;font:10px var(--mono);color:var(--muted)}.ticks span{position:absolute;transform:translateX(-50%)}
+.hold{display:flex;gap:8px;margin-bottom:10px}
+.hold button{flex:1;display:flex;align-items:center;gap:8px;justify-content:flex-start;padding:10px;min-height:52px;touch-action:none;user-select:none;-webkit-user-select:none;font-weight:600}
+.hold button kbd{font:700 14px var(--mono);border:1px solid #94a3b8;border-bottom-width:3px;border-radius:5px;padding:1px 7px;background:#f8fafc}
+.hold button.on{background:var(--brand);border-color:var(--brand);color:#fff}.hold button.on kbd{color:var(--ink)}
+.rname{font-size:19px;font-weight:700;line-height:1.2}
+.rdesc{margin:4px 0 8px;color:#334155;font-size:13px;min-height:54px}
+.pads{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{width:38px;height:38px;border-radius:8px;border:2px solid var(--line);background:#fff;font:700 14px var(--mono);padding:0;position:relative}
+.pchip.sel{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand2)}
+.pchip.ok{background:#dcfce7;border-color:var(--ok)}.pchip.ko{background:#fee2e2;border-color:var(--err)}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.cols{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin-top:10px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.panel h2{margin:0 0 6px;font-size:14px}
+.log{font:12px var(--mono);max-height:180px;overflow:auto}.log div{padding:2px 0;border-bottom:1px dotted #e5e9f0}
+.log .ok{color:var(--ok)}.log .ko{color:var(--err)}
+details summary{cursor:pointer;font-weight:600;color:var(--brand)}
+ul.k{margin:6px 0 0 18px;padding:0}ul.k li{margin:3px 0}
+footer{color:var(--muted);font-size:12px;padding:6px 12px 24px;text-align:center}
+@media(max-width:900px){.hud{grid-template-columns:1fr 1fr}.cols{grid-template-columns:1fr}}
+@media(max-width:560px){.hud{grid-template-columns:1fr}.ov{max-width:60%}.ov.h{top:56px}}
+
+body{font-size:15px}
+.wrap{max-width:1100px}
+nav.tabs2{position:sticky;top:0;z-index:30;background:#ffffffee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+nav.tabs2 .wrap{display:flex;gap:2px;overflow-x:auto;padding:0 12px;scrollbar-width:none}
+nav.tabs2 a{white-space:nowrap;text-decoration:none;color:var(--ink);font-size:13.5px;padding:10px 12px;border-bottom:3px solid transparent}
+nav.tabs2 a:hover{color:var(--brand);border-bottom-color:var(--brand)}
+section{padding:26px 0 6px}
+section h2{font-size:clamp(20px,4vw,26px)}
+section h2 .n{border-radius:6px}
+.card,.panel,.bay,.stage{border-radius:10px}
+.stage{background:#f7f9fc}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px}
+.toolbar .score{margin-left:auto;font:13px var(--mono);color:var(--brand);font-weight:700}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font:12.5px var(--mono);margin-top:4px}
+.kv span:nth-child(odd){color:var(--muted)}
+.kv .okc{color:var(--ok);font-weight:700}.kv .wc{color:var(--warn);font-weight:700}.kv .kc{color:var(--err);font-weight:700}
+.simstage .ov.t span{display:block}
+.dots button,.tabs button,.opt{font-weight:600}
+.simstage .hold{margin:0;padding:8px;background:#fff;border-top:1px solid var(--line);display:flex;gap:8px}.simstage .hold button{flex:1}
+@media(max-width:560px){.simstage .ov{position:static;max-width:none;margin:6px 8px;box-shadow:none}.simstage .ov.s{display:none}.simstage .ov.h{margin-top:0}}
+.pgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:8px}
+.pgrid label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}.pgrid select{width:100%;color:var(--ink);font-size:13.5px}.pgrid b{color:var(--brand)}
+details.panel{margin-bottom:10px}details.panel summary{font-size:14px}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.presets button{font-size:12.5px;padding:5px 10px}
+table.est{border-collapse:collapse;width:100%;font:12.5px var(--mono);margin-top:6px}table.est th,table.est td{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}table.est th{color:var(--muted);font-weight:600}
+table.est .okc{color:var(--ok);font-weight:700}table.est .wc{color:var(--warn);font-weight:700}table.est .kc{color:var(--err);font-weight:700}
+.hold{flex-wrap:wrap}.hold button{min-width:84px;padding:8px 6px;font-size:13px;min-height:48px}
+</style>
+</head>
+<body>
+<header id="top">
+  <div class="brand"><span class="logo" aria-hidden="true">⏚</span> BrasureLab <small>Cours et simulateur de brasage · Bac Pro CIEL</small><span class="credit">Créé par Yahn LE PRETTRE - Formaxion Landes</span></div>
+</header>
+<nav class="tabs2"><div class="wrap">
+  <a href="#principe">Principe</a><a href="#geste">Le geste</a><a href="#atelier">Atelier (simulateur)</a><a href="#flux">Le flux</a><a href="#imc">Échelle micro</a><a href="#defauts">Défauts</a><a href="#refusion">CMS</a><a href="#securite">Sécurité</a><a href="#quiz">Quiz</a>
+</div></nav>
+<main class="wrap">
+<section id="principe">
+  <h2><span class="n">1</span>Principe</h2>
+  <p class="lead">On dit « souder », mais en électronique on fait du <b>brasage tendre</b> : seul l’alliage d’apport fond. Le cuivre de la patte et du pad ne fond pas ; l’alliage vient s’y accrocher et créer une liaison à la fois mécanique et électrique.</p>
+  <div class="grid g3">
+    <div class="card"><div class="big">217–220 °C</div><div><b>Alliage sans plomb</b> Sn-Ag-Cu (SAC305), le standard actuel (RoHS).</div></div>
+    <div class="card"><div class="big">183 °C</div><div><b>Alliage Sn63/Pb37</b> eutectique : fond d’un coup, mais contient du plomb (usage restreint).</div></div>
+    <div class="card"><div class="big">320–360 °C</div><div><b>Pointe du fer</b> : bien plus chaude que la fusion pour transférer vite la chaleur.</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="card"><b>Brasage ≠ soudage</b><div class="small">Soudage : les pièces fondent ensemble (acier, arc). Brasage : un métal d’apport fond, pas les pièces. Brasage « tendre » : fusion sous 450 °C.</div></div>
+    <div class="card"><b>Trois rôles de la brasure</b><div class="small">① conduction électrique ② tenue mécanique ③ conduction thermique (évacuer la chaleur du composant).</div></div>
+    <div class="card"><b>Âme en flux</b><div class="small">Le fil de brasure contient en son centre un flux (résine) qui nettoie les oxydes au moment de la fusion.</div></div>
+  </div>
+</section>
+
+<section id="geste">
+  <h2><span class="n">2</span>Le geste, étape par étape</h2>
+  <p class="lead">Coupe d’un trou métallisé traversé par la patte d’un composant. Utilisez <b>Suivant</b> ou <b>Lecture auto</b> et regardez la température du pad et le comportement de l’alliage.</p>
+
+  <div class="stage">
+    <svg id="main" viewBox="0 0 680 400" role="img" aria-label="Coupe animée d’une brasure sur trou métallisé">
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+        <linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#8b97a1"/><stop offset=".5" stop-color="#e3e8ec"/><stop offset="1" stop-color="#8b97a1"/></linearGradient>
+        <linearGradient id="barrel" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#cbd2d8"/><stop offset="1" stop-color="#8f9aa4"/></linearGradient>
+        <pattern id="fr4" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#fff" stroke-opacity=".09" stroke-width="3"/></pattern>
+      </defs>
+      <!-- carte -->
+      <rect x="40" y="230" width="268" height="40" fill="#2f8f63"/><rect x="332" y="230" width="288" height="40" fill="#2f8f63"/>
+      <rect x="40" y="230" width="268" height="40" fill="url(#fr4)"/><rect x="332" y="230" width="288" height="40" fill="url(#fr4)"/>
+      <rect id="holeFill" x="308" y="222" width="24" height="0" fill="#c5ced6"/>
+      <!-- cuivre : pads + trou métallisé -->
+      <g fill="#c8793a">
+        <rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/>
+        <rect x="262" y="270" width="46" height="8"/><rect x="332" y="270" width="46" height="8"/>
+        <rect x="306" y="222" width="2.5" height="56"/><rect x="331.5" y="222" width="2.5" height="56"/>
+      </g>
+      <!-- patte puis composant -->
+      <rect id="lead" x="316" y="140" width="8" height="165" fill="url(#metal)"/>
+      <rect x="262" y="282" width="116" height="70" rx="5" fill="#2b2e35"/>
+      <text x="320" y="323" text-anchor="middle" fill="#cfd5db" font-size="14" font-family="system-ui" font-weight="600">Composant</text>
+      <!-- oxydes + chaleur -->
+      <g id="oxide" opacity=".8" fill="#7a4a26">
+        <rect x="316" y="140" width="8" height="82"/><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/>
+      </g>
+      <g id="heat" opacity="0" fill="#ff4a1c">
+        <rect x="316" y="140" width="8" height="82"/><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/>
+      </g>
+      <!-- brasure -->
+      <g id="solderG" opacity="0">
+        <path id="sGlow" d="M258 222 Q304 216 316 168 L324 168 Q336 216 382 222 Z" fill="#ff9a2e" filter="url(#glow)" opacity="0"/>
+        <path id="sMain" d="M258 222 Q304 216 316 168 L324 168 Q336 216 382 222 Z" fill="#c5ced6" stroke="#8b97a1" stroke-width="1"/>
+        <path id="sShine" d="M272 219 Q304 211 312 178" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+      </g>
+      <!-- fumées -->
+      <g id="smoke" fill="#fff"></g>
+      <!-- étiquettes -->
+      <g id="labels" font-family="system-ui" font-size="13" font-weight="600">
+        <text x="60" y="254" fill="#e9f7ef">Circuit imprimé (FR4)</text>
+        <g fill="#18221e"><text x="150" y="200" text-anchor="end">Pad (cuivre)</text><text x="400" y="188">Patte du composant</text><text x="410" y="258" fill="#e9f7ef">Trou métallisé</text></g>
+        <g stroke="#18221e" stroke-width="1.2" fill="none"><path d="M156 198 L268 222"/><path d="M398 185 L326 178"/></g>
+      </g>
+      <g id="okMark" opacity="0" font-family="system-ui" font-weight="700">
+        <text x="400" y="150" font-size="15" fill="#0e5b3b">✔ Ménisque concave</text>
+        <text x="400" y="170" font-size="13" fill="#0e5b3b" font-weight="500">brillant · trou rempli · angle faible</text>
+        <path d="M398 156 L340 190" stroke="#0e5b3b" stroke-width="1.5" fill="none"/>
+      </g>
+      <!-- fil de brasure -->
+      <g id="wire"><line x1="-200" y1="-168" x2="0" y2="0" stroke="#d4dae0" stroke-width="7" stroke-linecap="round"/><line x1="-200" y1="-168" x2="0" y2="0" stroke="#8a949d" stroke-width="2" stroke-dasharray="2 6"/></g>
+      <!-- fer -->
+      <g id="iron"><g transform="rotate(-35)">
+        <polygon points="0,0 44,-7 44,7" fill="#e9edf0" stroke="#8a949d"/>
+        <rect x="44" y="-9" width="110" height="18" fill="#9aa3ab"/><rect x="78" y="-9" width="10" height="18" fill="#dd7a2a"/>
+        <rect x="154" y="-15" width="150" height="30" rx="9" fill="#2e3440"/>
+        <text x="182" y="5" fill="#fff" font-size="13" font-family="ui-monospace" font-weight="500">350 °C</text>
+      </g></g>
+    </svg>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="read"><span>Pad / patte : <em id="tTxt">25 °C</em></span><span>Alliage : <em id="phase">absent</em></span></div>
+    <div class="gauge"><i id="tBar"></i><b style="left:54.25%"><span>217 °C fusion</span></b></div>
+    <div class="dots" id="dots"></div>
+    <div class="info" id="info"></div>
+    <div class="ctrls">
+      <button id="prev">← Précédent</button><button id="next" class="primary">Suivant →</button><button id="play">▶ Lecture auto</button>
+    </div>
+  </div>
+</section>
+
+<section id="atelier">
+  <h2><span class="n">3</span>Atelier : simulateur de brasage</h2>
+  <p class="lead">Maintenez <b>C</b> pour poser le fer et <b>S</b> pour apporter l’alliage. L’aspect de la brasure sur le circuit n’est pas dessiné à la main : il résulte d’un modèle physique (chaleur, flux, oxyde, mouillage, couche intermétallique). Essayez les quatre pads : ils ne chauffent pas à la même vitesse.</p>
+  <div class="toolbar">
+    <button id="resetAll">↺ Tout réinitialiser</button>
+    <span class="score" id="score">Réussies : 0 / 4</span>
+  </div>
+  <details class="panel" id="params" open>
+    <summary>Paramètres de l’atelier : alliage, fil, fer, flux, pad</summary>
+    <div class="pgrid">
+      <label>Alliage<select id="pAlloy"><option value="sac">SAC305 (sans plomb)</option><option value="sac0307">SAC0307 (sans plomb éco)</option><option value="sncu">Sn99,3Cu0,7 (sans plomb éco)</option><option value="snpb">Sn63/Pb37 (au plomb)</option><option value="snbi">Sn42/Bi58 (basse température)</option></select></label>
+      <label>Diamètre du fil<select id="pWire"><option value="0.5">0,5 mm</option><option value="0.8">0,8 mm</option><option value="1">1,0 mm</option><option value="1.5">1,5 mm</option></select></label>
+      <label>Flux<select id="pFlux"><option value="core">âme en résine (fil standard)</option><option value="none">fil plein, sans flux</option><option value="gel">âme + flux gel sur le pad</option></select></label>
+      <label>Température de consigne <b id="pSetV">340 °C</b><input type="range" id="pSet" min="250" max="420" step="10" value="340"></label>
+      <label>Puissance de la station<select id="pPower"><option value="25">25 W (entrée de gamme)</option><option value="45">45 W</option><option value="80">80 W</option></select></label>
+      <label>Panne (pointe)<select id="pTip"><option value="fine">fine (1 mm)</option><option value="cone">conique (2 mm)</option><option value="chisel">burin (3,5 mm)</option></select></label>
+      <label>Patte du composant<select id="pLead"><option value="0.6">Ø 0,6 mm</option><option value="0.8">Ø 0,8 mm</option><option value="1.2">Ø 1,2 mm</option></select></label>
+      <label>État du pad<select id="pPad"><option value="new">neuf</option><option value="std">standard</option><option value="old">ancien, oxydé</option></select></label>
+    </div>
+    <p class="small" id="alloyNote" style="margin:8px 0 0"></p>
+    <div class="small muted" style="margin-top:10px"><b>Scénarios prêts à l’emploi</b> (chaque changement remet la carte à neuf)</div>
+    <div class="presets" id="presets"></div>
+    <p class="small" id="presetNote" style="margin:8px 0 0"></p>
+    <div class="small muted" style="margin-top:10px"><b>Fenêtre de brasage estimée</b> avec ces réglages (fer tenu seul sur chaque pad)</div>
+    <table class="est" id="est"></table>
+  </details>
+  <div class="stage simstage" id="simstage">
+    <svg id="scene" viewBox="0 0 700 400" role="img" aria-label="Carte électronique en perspective avec fer à braser et fil d’alliage">
+      <defs>
+        <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="0" cy="0" r="1" fill="#b9c3d1"/></pattern>
+        <linearGradient id="legg" x1="0" x2="1"><stop offset="0" stop-color="#8b97a1"/><stop offset=".5" stop-color="#eef2f5"/><stop offset="1" stop-color="#8b97a1"/></linearGradient>
+        <linearGradient id="tipg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset=".55" stop-color="#b8c2cc"/><stop offset="1" stop-color="#6b7683"/></linearGradient>
+        <linearGradient id="wireg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset=".5" stop-color="#c5ced6"/><stop offset="1" stop-color="#8793a0"/></linearGradient>
+        <radialGradient id="heatg"><stop offset="0" stop-color="#ff7a1a" stop-opacity=".95"/><stop offset=".5" stop-color="#ff7a1a" stop-opacity=".35"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        <clipPath id="clipI"><circle cx="590" cy="96" r="72"/></clipPath>
+        <pattern id="fr4" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#fff" stroke-opacity=".1" stroke-width="3"/></pattern>
+      </defs>
+      <rect width="700" height="400" fill="url(#dots)"/>
+      <g id="board"></g>
+      <g id="pads"></g>
+      <g id="sSmoke"></g>
+      <g id="sWire"><line x1="-270" y1="-188" x2="0" y2="0" stroke="#6b7683" stroke-width="11" stroke-linecap="round"/><line x1="-270" y1="-188" x2="0" y2="0" stroke="url(#wireg)" stroke-width="8" stroke-linecap="round"/></g>
+      <g id="sIron"><g transform="rotate(-55)">
+        <polygon points="0,0 74,-8 74,8" id="tipPoly" fill="url(#tipg)" stroke="#5b6672" stroke-width="1"/>
+        <rect x="74" y="-10" width="150" height="20" fill="url(#tipg)" stroke="#5b6672"/><rect x="104" y="-10" width="9" height="20" fill="#d97706"/>
+        <rect x="224" y="-17" width="220" height="34" rx="10" fill="#0b1f2e"/>
+      </g></g>
+      <g id="callouts"></g>
+      <line id="link" stroke="#1e293b" stroke-width="1.3" stroke-dasharray="3 4"/>
+      <g id="inset">
+        <circle cx="590" cy="96" r="72" fill="#eaf1f4"/>
+        <g clip-path="url(#clipI)">
+          <g transform="translate(590 96) scale(1.2) translate(-320 -222)">
+            <rect x="200" y="230" width="108" height="40" fill="#2f9e6f"/><rect x="332" y="230" width="108" height="40" fill="#2f9e6f"/>
+            <rect x="200" y="230" width="108" height="40" fill="url(#fr4)"/><rect x="332" y="230" width="108" height="40" fill="url(#fr4)"/>
+            <path id="iHole" d="" fill="#c5ced6"/>
+            <g id="iPads" fill="#c8793a"><path id="iPadL" d="M262 222 h46 v8 h-46 Z"/><path id="iPadR" d="M332 222 h46 v8 h-46 Z"/><rect x="262" y="270" width="46" height="8"/><rect x="332" y="270" width="46" height="8"/><rect x="306" y="222" width="2.5" height="56"/><rect x="331.5" y="222" width="2.5" height="56"/></g>
+            <ellipse id="iBurn" cx="368" cy="236" rx="30" ry="7" fill="#5a3a22" opacity="0"/>
+            <rect id="iLead" x="316" y="100" width="8" height="205" fill="url(#legg)"/>
+            <rect x="262" y="282" width="116" height="70" rx="5" fill="#334155"/>
+            <g id="iOx" fill="#7a4a26" opacity=".8"><rect x="316" y="100" width="8" height="122"/><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/></g>
+            <g fill="#ff4a1c"><g id="iHeatL" opacity="0"><rect x="316" y="100" width="8" height="122"/></g><g id="iHeatP" opacity="0"><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/></g></g>
+            <path id="iGlow" d="" fill="#ff9a2e" filter="url(#glow)" opacity="0"/>
+            <path id="iSolP" d="" fill="#c5ced6" stroke="#8b97a1" stroke-width="1"/>
+            <path id="iImc" d="" fill="none" stroke="#7b5ea7" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+            <g id="iTip"><g transform="rotate(-35)"><polygon id="iTipPoly" points="0,0 44,-7 44,7" fill="url(#tipg)" stroke="#5b6672"/><rect x="44" y="-9" width="120" height="18" fill="url(#tipg)" stroke="#5b6672"/></g></g>
+            <g id="iWire"><line x1="-200" y1="-168" x2="0" y2="0" stroke="#6b7683" stroke-width="9" stroke-linecap="round"/><line x1="-200" y1="-168" x2="0" y2="0" stroke="url(#wireg)" stroke-width="6" stroke-linecap="round"/></g>
+          </g>
+        </g>
+        <circle cx="590" cy="96" r="72" fill="none" stroke="#1e293b" stroke-width="3"/>
+        <g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" font-weight="700"><rect x="535" y="172" width="110" height="18" rx="9" fill="#0b1f2e"/><text id="insetT" x="590" y="184.5" text-anchor="middle" fill="#5eead4">COUPE · PAD 1</text></g>
+      </g>
+    </svg>
+    <div class="hold simhold">
+          <button id="bIron" aria-label="Maintenir pour poser le fer"><kbd>C</kbd> Fer</button>
+          <button id="bWire" aria-label="Maintenir pour apporter l’alliage"><kbd>S</kbd> Alliage</button>
+          <button id="bShake" aria-label="Maintenir pour bouger la carte"><kbd>M</kbd> Bouger</button>
+            </div>
+    <div class="ov t"><b>BrasureLab · Fig. 03</b><span id="padTag">Pad 1 · pad standard</span></div>
+    <div class="ov h" id="hint"><i>CONSEIL</i><div id="hintT"></div></div>
+    <div class="ov s" id="stat">pad 1</div>
+  </div>
+
+  <div class="hud">
+    <div class="bay">
+      <h3><span>Étape 1 · Température</span><span class="badge b-cold" id="tBadge">froid</span></h3>
+      <div class="num" id="tNum">25<small>°C</small></div>
+      <div class="small muted" id="tSub">pad · patte · pointe</div>
+      <svg id="chart" viewBox="0 0 240 70" style="margin-top:8px;border:1px solid var(--line);border-radius:6px;background:#f8fafc" role="img" aria-label="Historique des températures"></svg>
+      <div class="small muted" style="margin-top:2px"><b style="color:#0f766e">━</b> pad &nbsp;<b style="color:#7c3aed">━</b> patte</div>
+    </div>
+    <div class="bay">
+      <h3><span>Étape 2 · Temps de contact</span><span class="badge b-idle" id="cBadge">—</span></h3>
+      <div class="num" id="cNum">0.0<small>s</small></div>
+      <div class="small muted">idéal 2 à 3 s · maximum 10 s</div>
+      <div class="zones" id="zones"><i style="width:16.67%;background:#fde7b5"></i><i style="width:8.33%;background:#84cc16"></i><i style="width:16.67%;background:#d9f0a0"></i><i style="width:41.67%;background:#f6c667"></i><i style="width:16.67%;background:#f7a39a"></i><div class="mk" id="cMk"></div></div>
+      <div class="ticks"><span style="left:0%">0</span><span style="left:16.67%">2</span><span style="left:25%">3</span><span style="left:41.67%">5</span><span style="left:83.33%">10</span></div>
+      <div class="small muted">secondes avec le fer sur le pad</div>
+      <div class="small" style="margin-top:8px"><b>Pointe</b> : <span id="tipQ">étamée 100 %</span></div>
+      <div class="row" style="margin-top:4px"><button id="bClean" class="small">🧽 Éponge + étamage</button></div>
+    </div>
+    <div class="bay">
+      <h3><span>Étape 3 · Commandes</span><span class="badge b-idle" id="qBadge">vide</span></h3>
+      <div class="small muted" style="margin-bottom:2px">Volume d’alliage déposé</div>
+      <div class="zones" id="volZones" style="margin-top:6px"><i style="width:16.7%;background:#f6c667"></i><i style="width:30%;background:#84cc16"></i><i style="width:53.3%;background:#f7a39a"></i><div class="mk" id="qMk"></div></div>
+      <div class="ticks" id="volTicks"><span style="left:8%">peu</span><span style="left:32%">juste</span><span style="left:73%">trop</span></div>
+      <div class="small muted" id="fluxL">flux actif : 0 %</div>
+    </div>
+    <div class="bay">
+      <h3><span>Étape 4 · Résultat</span><span class="badge b-idle" id="rBadge">en attente</span></h3>
+      <div class="rname" id="rName">En attente</div>
+      <div class="rdesc" id="rDesc">Choisissez un pad, chauffez-le puis apportez l’alliage.</div>
+      <div class="kv" id="meas"></div>
+      <div class="pads" id="padChips" style="margin-top:8px"></div>
+      <div class="row"><button id="resetPad">↺ Refaire ce pad</button></div>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h2>Journal des essais</h2><div class="log" id="log"><span class="muted">Aucun essai pour le moment.</span></div></div>
+    <div class="panel"><h2>Ce que simule le modèle</h2>
+      <ul class="k small"><li>Chaleur : pointe régulée (elle « chute » au contact), pad, patte, plan de masse.</li>
+      <li>Flux : apporté par le fil, actif au-dessus de ≈ 120 °C, consommé par la chaleur (≈ 10 s à 300 °C).</li>
+      <li>Oxyde : retiré par le flux, qui revient si le flux est épuisé et que ça surchauffe.</li>
+      <li>Mouillage : angle de contact, remplissage du trou par capillarité, couche intermétallique.</li>
+      <li>Pad : se dégrade avec la température et le temps ; l’alliage se fige en quelques secondes.</li></ul>
+      <p class="small muted" style="margin:6px 0 0">Touches <b>1</b> à <b>4</b> ou toucher un pad pour le choisir. Modèle simplifié à but pédagogique : valeurs à confronter aux consignes de l’atelier.</p>
+    </div>
+  </div>
+</section>
+<section id="flux">
+  <h2><span class="n">4</span>Le flux et le mouillage</h2>
+  <p class="lead">Le cuivre s’oxyde à l’air : une couche invisible empêche l’alliage de s’accrocher. Activez le flux et observez la goutte : l’angle de contact θ chute et l’alliage <b>mouille</b> la surface.</p>
+  <div class="stage"><svg id="drop" viewBox="0 0 520 230" role="img" aria-label="Goutte d’alliage sur cuivre avec et sans flux">
+    <rect x="0" y="0" width="520" height="230" fill="#eef2ef"/>
+    <rect x="30" y="150" width="460" height="46" fill="#c8793a"/>
+    <rect id="ox" x="30" y="143" width="460" height="7" fill="#6b3b1e"/>
+    <path id="dpath" fill="#c5ced6" stroke="#8b97a1" stroke-width="1.5"/>
+    <path id="dshine" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+    <line id="tan" stroke="#e5472b" stroke-width="2" stroke-dasharray="5 4"/>
+    <path id="arc" stroke="#e5472b" stroke-width="2" fill="none"/>
+    <text id="thetaT" font-family="ui-monospace" font-weight="500" font-size="15" fill="#e5472b"></text>
+    <text x="40" y="218" font-size="13" fill="#5b6862" font-family="system-ui">Surface de cuivre</text>
+    <text id="oxT" x="490" y="136" text-anchor="end" font-size="13" font-family="system-ui" font-weight="600" fill="#6b3b1e">couche d’oxyde</text>
+  </svg></div>
+  <div class="card" style="margin-top:12px">
+    <label class="sw"><input type="checkbox" id="fluxOn"> Flux actif (chaleur + résine)</label>
+    <p id="dropTxt" style="margin:10px 0 0"></p>
+  </div>
+</section>
+
+<section id="imc">
+  <h2><span class="n">5</span>À l’échelle microscopique</h2>
+  <p class="lead">Le « collage » est en réalité une <b>diffusion</b> : l’étain et le cuivre s’interpénètrent et forment une fine couche intermétallique (Cu₆Sn₅). Elle grossit avec le temps de chauffe.</p>
+  <div class="stage"><svg id="imcSvg" viewBox="0 0 520 250" role="img" aria-label="Couche intermétallique entre cuivre et alliage">
+    <rect id="snL" x="0" y="0" width="520" height="125" fill="#c5ced6"/>
+    <rect id="imcL" x="0" y="120" width="520" height="10" fill="#7b5ea7"/>
+    <rect id="cuL" x="0" y="130" width="520" height="120" fill="#c8793a"/>
+    <g font-family="system-ui" font-size="14" font-weight="600">
+      <text x="16" y="28" fill="#2b3640">Alliage Sn-Ag-Cu</text>
+      <text x="16" y="236" fill="#fff">Cuivre (pad ou patte)</text>
+      <text id="imcLab" x="504" y="116" text-anchor="end" fill="#4a3478">Couche intermétallique</text>
+    </g>
+  </svg></div>
+  <div class="card" style="margin-top:12px">
+    <label for="tChauffe" class="sw">Durée de chauffe : <span id="tVal">3 s</span></label>
+    <input type="range" id="tChauffe" min="0" max="14" step="0.5" value="3">
+    <p class="small" style="margin:6px 0 0">Épaisseur indicative : <b id="imcVal"></b> (la croissance suit environ la racine du temps).</p>
+    <p id="imcTxt" style="margin:8px 0 0"></p>
+  </div>
+</section>
+
+<section id="defauts">
+  <h2><span class="n">6</span>Bonne ou mauvaise brasure ?</h2>
+  <p class="lead">Choisissez un cas : la forme du cordon raconte ce qui s’est passé pendant le brasage. Critères inspirés de la norme IPC-A-610 (à confirmer avec le référentiel de l’atelier).</p>
+  <div class="tabs" id="dTabs"></div>
+  <div class="stage" id="dSvg"></div>
+  <div class="card" style="margin-top:12px" id="dInfo"></div>
+</section>
+
+<section id="refusion">
+  <h2><span class="n">7</span>CMS : le profil de refusion</h2>
+  <p class="lead">Les composants CMS sont posés sur de la pâte à braser puis chauffés dans un four selon une courbe température/temps. Lancez l’animation ou déplacez le curseur.</p>
+  <div class="stage"><svg id="rf" viewBox="0 0 640 320" role="img" aria-label="Profil de refusion SAC305"></svg></div>
+  <div class="card" style="margin-top:12px">
+    <div class="ctrls" style="margin-top:0"><button id="rfPlay" class="primary">▶ Lecture</button></div>
+    <input type="range" id="rfT" min="0" max="320" step="1" value="0" aria-label="Temps">
+    <div class="read" style="margin-top:8px"><span>t = <em id="rfTime">0 s</em></span><span>T = <em id="rfTemp">25 °C</em></span></div>
+    <p id="rfTxt" style="margin:10px 0 0"></p>
+  </div>
+</section>
+
+<section id="securite">
+  <h2><span class="n">8</span>Sécurité à l’atelier</h2>
+  <div class="grid g2">
+    <div class="card"><b>🔥 Brûlures</b><div class="small">Pointe à 350 °C : toujours reposer le fer sur son support, jamais sur la table. Ne rien saisir sans vérifier la température d’un composant fraîchement brasé.</div></div>
+    <div class="card"><b>💨 Fumées de flux</b><div class="small">Irritantes pour les voies respiratoires : aspiration locale ou local ventilé, tête au-dessus des fumées.</div></div>
+    <div class="card"><b>👁 Projections</b><div class="small">Lunettes de protection, surtout en coupant les pattes (elles partent vite et loin) et en nettoyant la pointe.</div></div>
+    <div class="card"><b>🧼 Plomb et hygiène</b><div class="small">Même avec du sans-plomb, ne pas manger/boire à l’atelier et se laver les mains après manipulation. Éponge de nettoyage : déchets selon la consigne du lycée.</div></div>
+    <div class="card"><b>⚡ Électricité</b><div class="small">Brasage toujours hors tension, condensateurs déchargés. Cordon du fer en bon état et rangé.</div></div>
+    <div class="card"><b>🧰 Bonnes habitudes</b><div class="small">Pointe propre et étamée, bonne température, support stable pour la carte, rangement en fin de séance et fer éteint.</div></div>
+  </div>
+</section>
+
+<section id="quiz">
+  <h2><span class="n">9</span>Quiz de vérification</h2>
+  <div class="card" id="quizBox"></div>
+</section>
+
+
+</main>
+<footer><div class="wrap">BrasureLab · support pédagogique animé · modèle simplifié (valeurs indicatives, à confronter aux consignes de l’atelier et aux fiches fabricant).</div></footer>
+<script>
+/* Modèle physique simplifié d'un brasage manuel sur trou métallisé (paramètres localisés) */
+var Phys=(function(){
+  var AMB=25,GAMB_T=0.015,VMAX=12;
+  var CP=0.30,CL0=0.06,GLP0=0.35,GPA=0.03,GLA=0.03;
+  var CFG=[{n:'Pad standard',gpl:0.02},{n:'Pad standard',gpl:0.02},{n:'Grand pad de cuivre',gpl:0.045},{n:'Relié au plan de masse',gpl:0.09}];
+  var ALLOY={
+    sac:{n:'SAC305',comp:'Sn96,5 Ag3 Cu0,5',melt:217,thc:30,imcK:1.0,tauW:0.5,rho:7.4,L:60,note:'Sans plomb, standard industriel actuel (RoHS).'},
+    sac0307:{n:'SAC0307',comp:'Sn99 Ag0,3 Cu0,7',melt:227,thc:36,imcK:1.1,tauW:0.6,rho:7.3,L:60,note:'Sans plomb économique : fond plus haut et mouille moins bien.'},
+    sncu:{n:'Sn99,3Cu0,7',comp:'Sn99,3 Cu0,7',melt:227,thc:40,imcK:1.2,tauW:0.7,rho:7.3,L:60,note:'Sans plomb très économique : mouillage le plus médiocre.'},
+    snpb:{n:'Sn63/Pb37',comp:'Sn63 Pb37 (eutectique)',melt:183,thc:18,imcK:0.8,tauW:0.35,rho:8.4,L:47,note:'Contient du plomb (usage restreint) : fond bas, mouille très bien.'},
+    snbi:{n:'Sn42/Bi58',comp:'Sn42 Bi58',melt:138,thc:22,imcK:0.5,tauW:0.4,rho:8.7,L:45,note:'Basse température pour composants sensibles ; joint plus fragile.'}
+  };
+  var TIPS={fine:{g:0.55,ct:2.0,n:'fine (1 mm)'},cone:{g:1,ct:3.5,n:'conique (2 mm)'},chisel:{g:1.6,ct:6,n:'burin (3,5 mm)'}};
+  var PADS={new:0.2,std:0.65,old:0.95};
+  function params(S){
+    var A=ALLOY[S.alloy],T=TIPS[S.tip],rl=S.leadD/2,lk=Math.pow(S.leadD/0.8,2);
+    var hole=Math.PI*((rl+0.17)*(rl+0.17)-rl*rl)*1.6;
+    return {S:S,A:A,set:S.set,pmax:S.power,vfeed:Math.PI*S.wireD*S.wireD/4*8,gtip:T.g,ct:T.ct,O0:PADS[S.pad],F0:S.flux==='gel'?0.6:0,
+      fluxMode:S.flux,kF:S.flux==='gel'?0.02:0.03,rl:rl,hole:hole,lk:lk,gl:Math.sqrt(lk)};
+  }
+  function vrange(P){return [P.hole+1.0,P.hole+4.8]}
+  function newJoint(i,P){return {i:i,Tp:AMB,Tl:AMB,V:0,W:0,O:P.O0,F:P.F0,H:0,imcEq:0,D:0,tc:0,tmax:AMB,th:140,hadLiq:false,coolT:0,disturbed:false,res:null,active:false,idle:0,frozen:false}}
+  function newTip(P){return {T:P.set,Q:1}}
+  function thetaNow(j,P){
+    var liq=P.A.melt,Tj=Math.min(j.Tp,j.Tl);
+    var w=j.W*Math.max(0,1-j.O*1.5);
+    var th=140+(P.A.thc-140)*w;
+    th+=Math.max(0,(liq+25-Tj)/25)*18*(w>0?1:0);
+    return Math.max(15,Math.min(150,th));
+  }
+  function imc(j,P){return j.imcEq>0?0.75*P.A.imcK*Math.sqrt(j.imcEq):0}
+  function step(j,tip,u,dt,P){
+    var A=P.A,liq=A.melt,cfg=CFG[j.i],n=4,h=dt/n;
+    var iron=u.iron&&!j.res,wire=u.wire&&!j.res;
+    var CL=CL0*P.lk,GLP=GLP0*P.gl;
+    for(var s=0;s<n;s++){
+      var Tj=Math.min(j.Tp,j.Tl);
+      var bridge=(j.V>0.2&&Tj>liq-5)?1.7:1;
+      var Gtp=iron?0.20*tip.Q*bridge*P.gtip:0,Gtl=iron?0.12*tip.Q*bridge*P.gtip*P.gl:0;
+      var qp=Gtp*(tip.T-j.Tp),ql=Gtl*(tip.T-j.Tl);
+      var qmp=0,qml=0,qmt=0;
+      if(wire){
+        var viaPad=Tj>=liq-3,viaTip=iron&&tip.T>=liq;
+        if(j.V<VMAX&&(viaPad||viaTip)){
+          var dv=P.vfeed*h;
+          j.V+=dv;j.active=true;
+          var Tm=viaPad?(j.Tp+j.Tl)/2:tip.T;
+          var hm=dv*A.rho*1e-3*(0.23*(Tm-AMB)+A.L);
+          var fg=P.fluxMode==='none'?0:0.45*dv;
+          if(viaPad){qmp=hm*0.6/h;qml=hm*0.4/h;j.F=Math.min(1,j.F+fg)}
+          else{qmt=hm/h;j.F=Math.min(1,j.F+fg*0.27)}
+        }
+      }
+      j.Tp+=h*(qp+GLP*(j.Tl-j.Tp)-(GPA+cfg.gpl)*(j.Tp-AMB)-qmp)/CP;
+      j.Tl+=h*(ql+GLP*(j.Tp-j.Tl)-GLA*(j.Tl-AMB)-qml)/CL;
+      var heat=Math.min(P.pmax,30*(P.set-tip.T));
+      if(iron)tip.T+=h*(heat-qp-ql-qmt-GAMB_T*(tip.T-AMB))/P.ct;
+      else tip.T+=h*(heat-GAMB_T*(tip.T-AMB))/P.ct;
+    }
+    if(iron){j.tc+=dt;j.active=true;j.idle=0}else if(j.active)j.idle+=dt;
+    var Tj2=Math.min(j.Tp,j.Tl),Tavg=(j.Tp+j.Tl)/2;
+    if(j.Tp>j.tmax)j.tmax=j.Tp;
+    if(j.F>0){
+      var act=j.F*Math.max(0,Math.min(1,(Tavg-120)/60));
+      j.O=Math.max(0,j.O-act*1.3*dt);
+      if(Tj2>110)j.F=Math.max(0,j.F-j.F*P.kF*Math.exp((j.Tp-200)/55)*dt);
+    }else if(j.Tp>200){
+      j.O=Math.min(1,j.O+0.02*Math.exp((j.Tp-250)/60)*dt);
+    }
+    var liquid=j.V>0.05&&Tj2>=liq;
+    if(liquid){
+      j.hadLiq=true;j.th=thetaNow(j,P);
+      var clean=Math.max(0,1-j.O*1.5);
+      j.W+=(1-j.W)*clean*dt/A.tauW;
+      if(j.W>0.3&&j.Tp>=liq+5){var maxH=Math.min(1,j.V/P.hole);if(j.H<maxH)j.H=Math.min(maxH,j.H+1.1*j.W*dt)}
+      j.imcEq+=dt*Math.exp(0.045*(Tj2-(A.melt+33)));
+    }
+    if(j.Tp>180)j.D+=8e-6*(j.Tp-180)*(j.Tp-180)*dt;
+    var hot=Tj2>=liq;
+    if(j.V>0.05&&!iron&&!wire){if(!hot)j.coolT+=dt}else j.coolT=0;
+    if(u.shake&&j.V>0.3&&j.hadLiq&&Tj2<liq&&Tj2>liq-30&&!j.res)j.disturbed=true;
+    j.frozen=(j.V>0.05&&Tj2<liq-12);
+  }
+  function measures(j,P){
+    return {theta:j.th,fill:j.V>0?Math.min(1,j.H/Math.min(1,j.V/P.hole)):0,imc:imc(j,P),V:j.V,D:j.D,Tmax:j.tmax,W:j.W,O:j.O};
+  }
+  function classify(j,P){
+    var m=measures(j,P),vr=vrange(P);
+    if(j.D>=1)return 'lifted';
+    if(j.disturbed)return 'disturbed';
+    if(m.theta>=95)return 'cold';
+    if(m.V<vr[0])return 'few';
+    if(m.V>vr[1])return 'excess';
+    if(m.imc>3.4||j.D>0.55)return 'overheat';
+    if(m.theta>50||m.fill<0.7||m.imc<0.5)return 'dry';
+    return 'good';
+  }
+  function estimate(i,P){ // fer tenu seul sur le pad : instant de fusion et instant de dégradation
+    var j=newJoint(i,P),tip=newTip(P),dt=1/30,t,tm=null,td=null;
+    for(t=0;t<25;t+=dt){step(j,tip,{iron:true,wire:false,shake:false},dt,P);
+      if(tm===null&&Math.min(j.Tp,j.Tl)>=P.A.melt+8)tm=t;
+      if(j.D>=1){td=t;break}}
+    return {tm:tm,td:td,tmax:j.tmax};
+  }
+  return {CFG:CFG,ALLOY:ALLOY,TIPS:TIPS,PADS:PADS,VMAX:VMAX,AMB:AMB,params:params,vrange:vrange,newJoint:newJoint,newTip:newTip,step:step,measures:measures,classify:classify,imc:imc,estimate:estimate};
+})();
+if(typeof module!=='undefined')module.exports=Phys;
+
+</script>
+<script>
+(function(){
+
+"use strict";
+const $=s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function mix(c1,c2,t){const p=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));const a=p(c1),b=p(c2);return '#'+a.map((v,i)=>Math.round(lerp(v,b[i],t)).toString(16).padStart(2,'0')).join('')}
+const NS='http://www.w3.org/2000/svg';
+
+/* ============ 2. GESTE ============ */
+const STAGES=[
+ {t:'Préparer',txt:'Pointe propre et étamée, carte maintenue, composant plaqué contre la carte. Le pad et la patte portent une fine couche d’oxyde (brun) qui gêne le mouillage.',dur:'—',err:'Pointe noircie ou carte qui bouge.',
+  to:{ix:640,iy:60,wx:150,wy:150,sol:0,hole:0,temp:25,oxide:.8},tr:1.6},
+ {t:'Chauffer pad ET patte',txt:'Poser le plat de la pointe sur la jonction pad/patte pour chauffer les deux en même temps. C’est la zone à brasser qui doit atteindre la température, pas le fer qui fait fondre l’alliage.',dur:'1 à 2 s',err:'Chauffer seulement la patte : le pad reste froid et l’alliage ne mouille pas.',
+  to:{ix:330,iy:215,wx:150,wy:150,sol:0,hole:0,temp:260,oxide:.8},tr:1.4},
+ {t:'Apporter l’alliage',txt:'Toucher la jonction avec le fil, côté opposé au fer. L’alliage fond au contact des pièces chaudes, le flux nettoie l’oxyde, l’alliage coule par capillarité et remplit le trou.',dur:'1 à 2 s',err:'Fondre l’alliage sur la pointe du fer puis « le déposer » : le flux brûle avant d’agir.',
+  to:{ix:330,iy:215,wx:309,wy:214,sol:1,hole:1,temp:262,oxide:0},tr:1.4},
+ {t:'Retirer le fil',txt:'Quand la quantité est suffisante (cordon en forme de cône, trou rempli), on retire d’abord le fil. Le fer reste un instant pour laisser l’alliage s’étaler.',dur:'≈ 1 s',err:'Trop d’alliage : boule ou pont avec la piste voisine.',
+  to:{ix:330,iy:215,wx:150,wy:150,sol:1,hole:1,temp:262,oxide:0},tr:1.4},
+ {t:'Retirer le fer',txt:'On dégage le fer en l’éloignant vers le haut. L’ensemble perd sa chaleur : l’alliage passe sous 217 °C et commence à se solidifier.',dur:'≈ 1 s',err:'Retirer le fer trop tôt : l’alliage n’a pas eu le temps de mouiller.',
+  to:{ix:640,iy:60,wx:150,wy:150,sol:1,hole:1,temp:230,oxide:0},tr:2.2},
+ {t:'Refroidir sans bouger',txt:'On ne touche à rien pendant 2 à 3 secondes. Un mouvement pendant la solidification donne une brasure « fissurée », grise et granuleuse (brasure sèche).',dur:'2 à 3 s',err:'Souffler dessus ou bouger la carte.',
+  to:{ix:640,iy:60,wx:150,wy:150,sol:1,hole:1,temp:30,oxide:0},tr:.9},
+ {t:'Contrôler',txt:'Cordon brillant, forme de cône concave (angle faible), alliage qui épouse pad et patte, trou rempli. Si ce n’est pas le cas : reprendre avec un peu de flux ou retirer à la tresse.',dur:'Visuel',err:'Valider une brasure mate et en boule sans la reprendre.',ok:true,
+  to:{ix:640,iy:60,wx:150,wy:150,sol:1,hole:1,temp:25,oxide:0},tr:.9}
+];
+let st=0,cur={ix:640,iy:60,wx:150,wy:150,sol:0,hole:0,temp:25,oxide:.8},playing=false,playT=0;
+const dots=$('#dots');
+STAGES.forEach((s,i)=>{const b=document.createElement('button');b.textContent=i+1;b.title=s.t;b.setAttribute('aria-label','Étape '+(i+1)+' : '+s.t);b.onclick=()=>{playing=false;setPlay();go(i)};dots.appendChild(b)});
+function go(i){st=clamp(i,0,STAGES.length-1);playT=0;
+  [...dots.children].forEach((b,k)=>{b.className=k===st?'on':(k<st?'done':'')});
+  const s=STAGES[st];
+  $('#info').innerHTML=`<h3>${st+1}. ${s.t}</h3><p style="margin:0">${s.txt}</p><div class="chips"><span class="chip">⏱ ${s.dur}</span><span class="chip err">⚠ Erreur fréquente : ${s.err}</span></div>`;
+  $('#prev').disabled=st===0;$('#next').disabled=st===STAGES.length-1;
+  $('#labels').style.opacity=(st===0||st===6)?1:.15;
+  $('#okMark').style.opacity=s.ok?1:0;
+}
+function setPlay(){$('#play').textContent=playing?'⏸ Pause':'▶ Lecture auto'}
+$('#prev').onclick=()=>{playing=false;setPlay();go(st-1)};
+$('#next').onclick=()=>{playing=false;setPlay();go(st+1)};
+$('#play').onclick=()=>{playing=!playing;setPlay();if(playing&&st===STAGES.length-1)go(0);playT=0};
+
+const iron=$('#iron'),wire=$('#wire'),solG=$('#solderG'),sMain=$('#sMain'),sGlow=$('#sGlow'),sShine=$('#sShine'),holeFill=$('#holeFill');
+const smoke=$('#smoke'),parts=[];let spawnAcc=0;
+function rate(k){return k==='sol'?1.3:k==='hole'?.9:k==='oxide'?3:4}
+function frame(dt){
+  const T=STAGES[st].to;
+  for(const k in cur){const r=k==='temp'?STAGES[st].tr:rate(k);cur[k]+=(T[k]-cur[k])*(1-Math.exp(-r*dt))}
+  iron.setAttribute('transform',`translate(${cur.ix} ${cur.iy})`);
+  wire.setAttribute('transform',`translate(${cur.wx} ${cur.wy})`);
+  const s=clamp(cur.sol,0,1);
+  solG.setAttribute('opacity',s>.01?1:0);
+  solG.setAttribute('transform',`translate(320 222) scale(${s}) translate(-320 -222)`);
+  holeFill.setAttribute('height',48*clamp(cur.hole,0,1));
+  const liq=s>.01?clamp((cur.temp-205)/25,0,1):0;
+  sMain.setAttribute('fill',mix('#c5ced6','#ffc27a',liq));
+  holeFill.setAttribute('fill',mix('#c5ced6','#ffc27a',liq));
+  sGlow.setAttribute('opacity',liq*.85);
+  sShine.setAttribute('opacity',(1-liq)*.65);
+  $('#heat').setAttribute('opacity',clamp((cur.temp-25)/250,0,1)*.55);
+  $('#oxide').setAttribute('opacity',cur.oxide);
+  $('#tBar').style.width=clamp(cur.temp/400,0,1)*100+'%';
+  $('#tTxt').textContent=Math.round(cur.temp)+' °C';
+  $('#phase').textContent=cur.sol<.03?'absent':(cur.temp>=217?'liquide (brille)':'solide');
+  // fumées
+  if(st>=2&&st<=3&&cur.sol>.05&&cur.temp>210){spawnAcc+=dt*7;while(spawnAcc>1&&parts.length<28){spawnAcc--;const c=document.createElementNS(NS,'circle');smoke.appendChild(c);parts.push({c,x:320+(Math.random()-.5)*50,y:200,vx:(Math.random()-.5)*8,vy:-(22+Math.random()*20),r:3,a:.5})}}
+  for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=dt*6;p.a-=dt*.32;
+    if(p.a<=0){p.c.remove();parts.splice(i,1);continue}
+    p.c.setAttribute('cx',p.x);p.c.setAttribute('cy',p.y);p.c.setAttribute('r',p.r);p.c.setAttribute('opacity',p.a*.7)}
+  // lecture auto
+  if(playing){playT+=dt;if(playT>(st===0?2.2:3.6)){if(st<STAGES.length-1)go(st+1);else{playing=false;setPlay()}}}
+}
+go(0);
+
+/* ============ 3. MOUILLAGE ============ */
+let theta=140*Math.PI/180;
+const A0=6500,CX=260,Y0=146;
+function drawDrop(){
+  const th=clamp(theta,.3,2.6);
+  const R=Math.sqrt(A0/(th-Math.sin(th)*Math.cos(th)));
+  const a=R*Math.sin(th);
+  const large=th>Math.PI/2?1:0;
+  const d=`M${CX-a} ${Y0} A${R} ${R} 0 ${large} 1 ${CX+a} ${Y0} Z`;
+  $('#dpath').setAttribute('d',d);
+  const topY=Y0+R*Math.cos(th)-R;
+  $('#dshine').setAttribute('d',`M${CX-a*.45} ${Y0+R*Math.cos(th)-Math.sqrt(Math.max(0,R*R-(a*.45)**2))+4} q ${a*.2} -3 ${a*.35} -1`);
+  const Px=CX-a,Py=Y0;
+  const tx=Px+62*Math.cos(th),ty=Py-62*Math.sin(th);
+  const tn=$('#tan');tn.setAttribute('x1',Px);tn.setAttribute('y1',Py);tn.setAttribute('x2',tx);tn.setAttribute('y2',ty);
+  const r=30;$('#arc').setAttribute('d',`M${Px+r} ${Py} A${r} ${r} 0 ${th>Math.PI/2?1:0} 0 ${Px+r*Math.cos(th)} ${Py-r*Math.sin(th)}`);
+  const lx=Px+(th>Math.PI/2?10:40),ly=Py-10-(th>Math.PI/2?20:0);
+  const tt=$('#thetaT');tt.setAttribute('x',Math.max(34,Px-(th>Math.PI/2?-48:-44)));tt.setAttribute('y',Py+(th>Math.PI/2?-28:-12));tt.textContent='θ = '+Math.round(th*180/Math.PI)+'°';
+}
+function dropText(){
+  const on=$('#fluxOn').checked;
+  $('#dropTxt').innerHTML=on?'<b>Avec flux</b> : l’oxyde est dissous, l’alliage s’étale sur le cuivre, θ est faible (&lt; 45° env.). C’est un bon <b>mouillage</b> : surface de contact maximale, cordon concave et brillant.'
+    :'<b>Sans flux</b> : la couche d’oxyde isole l’alliage du cuivre. La goutte reste en boule, θ est grand (&gt; 90°) : le mouillage est mauvais, l’alliage « glisse » et n’accroche pas (brasure sèche).';
+}
+$('#fluxOn').onchange=dropText;dropText();
+
+/* ============ 4. IMC ============ */
+function imcUpdate(){
+  const t=parseFloat($('#tChauffe').value);
+  $('#tVal').textContent=t.toFixed(1).replace('.0','')+' s';
+  const th=t<=0?0:.9*Math.sqrt(t);              // µm
+  const px=th*22;
+  $('#imcL').setAttribute('y',125-px/2);$('#imcL').setAttribute('height',Math.max(px,0));
+  $('#snL').setAttribute('height',125-px/2);
+  $('#cuL').setAttribute('y',125+px/2);$('#cuL').setAttribute('height',125);
+  $('#imcL').setAttribute('fill',th>2.6?'#4a3478':'#7b5ea7');
+  $('#imcVal').textContent=th.toFixed(1)+' µm';
+  $('#imcLab').setAttribute('y',125-px/2-6);
+  let m;
+  if(t<1)m='<span class="chip err">Trop court</span> La couche intermétallique est absente ou discontinue : l’alliage « pose » sur le cuivre sans vraie liaison → <b>brasure sèche</b>.';
+  else if(t<=6)m='<span class="chip ok">Zone idéale</span> Couche continue et fine (≈ 1 à 2 µm) : liaison solide, ductile, bonne conduction.';
+  else m='<span class="chip err">Trop long</span> Couche épaisse et fragile (cassante), pad qui peut se décoller, flux brûlé, composant surchauffé.';
+  $('#imcTxt').innerHTML=m;
+}
+$('#tChauffe').oninput=imcUpdate;imcUpdate();
+
+/* ============ 5. DÉFAUTS ============ */
+const BASE=`<rect x="40" y="230" width="268" height="40" fill="#2f8f63"/><rect x="332" y="230" width="308" height="40" fill="#2f8f63"/>
+<g fill="#c8793a"><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/><rect x="262" y="270" width="46" height="8"/><rect x="332" y="270" width="46" height="8"/><rect x="306" y="222" width="2.5" height="56"/><rect x="331.5" y="222" width="2.5" height="56"/></g>`;
+const BODY=`<rect x="262" y="282" width="116" height="70" rx="5" fill="#2b2e35"/>`;
+const LEAD=`<rect x="316" y="140" width="8" height="165" fill="url(#m2)"/>`;
+const DEF=`<defs><linearGradient id="m2" x1="0" x2="1"><stop offset="0" stop-color="#8b97a1"/><stop offset=".5" stop-color="#e3e8ec"/><stop offset="1" stop-color="#8b97a1"/></linearGradient></defs>`;
+const sv=(inner,vb='60 100 580 260')=>`<svg viewBox="${vb}" role="img">${DEF}${inner}</svg>`;
+const FIL='M258 222 Q304 216 316 168 L324 168 Q336 216 382 222 Z';
+const SC='#c5ced6',SD='#8e979e';
+const DEFECTS=[
+ {n:'Bonne brasure',v:'Conforme',c:'#16875a',
+  svg:sv(BASE+`<rect x="308" y="222" width="24" height="48" fill="${SC}"/>`+LEAD+BODY+`<path d="${FIL}" fill="${SC}" stroke="#8b97a1"/><path d="M272 219 Q304 211 312 178" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/><text x="410" y="170" font-size="15" font-weight="700" fill="#0e5b3b" font-family="system-ui">✔ concave, brillante</text>`),
+  asp:'Cordon en cône concave, surface lisse et brillante, trou rempli, alliage qui épouse bien pad et patte.',cause:'Pad et patte à bonne température, flux actif, quantité d’alliage juste.',cons:'Liaison fiable : bonne conduction, bonne tenue mécanique.',rem:'Rien à faire : continuer ainsi.'},
+ {n:'Brasure sèche',v:'Défaut',c:'#c93a2b',
+  svg:sv(BASE+LEAD+BODY+`<path d="M280 222 Q284 160 320 156 Q356 160 360 222 Z" fill="${SD}" stroke="#6c757c"/><g fill="#6c757c"><circle cx="305" cy="190" r="2"/><circle cx="335" cy="180" r="2.5"/><circle cx="322" cy="205" r="2"/><circle cx="345" cy="205" r="2"/></g><path d="M262 222 L282 222 L280 214 Z" fill="#101614"/><path d="M360 222 L378 222 L362 214 Z" fill="#101614"/><text x="400" y="170" font-size="14" font-weight="700" fill="#8f2a1f" font-family="system-ui">✘ boule, mate, sans trou rempli</text>`),
+  asp:'Cordon en boule ou en dôme (angle de contact élevé), surface mate et granuleuse, vide ou fissure à la jonction avec le pad.',cause:'Pad pas assez chaud, oxydation, flux insuffisant, composant bougé pendant la solidification.',cons:'Contact intermittent ou résistance élevée : panne aléatoire, la plus difficile à diagnostiquer.',rem:'Reflux de la brasure : ajouter un peu de flux, rechauffer pad ET patte, laisser refroidir sans bouger.'},
+ {n:'Excès',v:'Défaut',c:'#c93a2b',
+  svg:sv(BASE+`<rect x="308" y="222" width="24" height="48" fill="${SC}"/>`+LEAD+BODY+`<path d="M252 222 Q238 118 320 108 Q402 118 388 222 Z" fill="${SC}" stroke="#8b97a1"/><path d="M276 200 Q270 140 310 124" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/><text x="408" y="150" font-size="14" font-weight="700" fill="#8f2a1f" font-family="system-ui">✘ forme bombée</text>`),
+  asp:'Grosse boule convexe qui cache la patte : impossible de vérifier que l’alliage a bien mouillé.',cause:'Trop de fil apporté, fil non retiré à temps.',cons:'Risque de pont avec la piste voisine, liaison masquée (possible brasure sèche dessous), gaspillage.',rem:'Retirer l’excédent avec une tresse à dessouder ou une pompe, puis contrôler la forme.'},
+ {n:'Manque',v:'Défaut',c:'#c93a2b',
+  svg:sv(BASE+`<rect x="308" y="222" width="24" height="16" fill="${SC}"/>`+LEAD+BODY+`<path d="M296 222 Q312 208 317 192 L323 192 Q329 208 344 222 Z" fill="${SC}" stroke="#8b97a1"/><text x="405" y="180" font-size="14" font-weight="700" fill="#8f2a1f" font-family="system-ui">✘ pad visible, trou vide</text>`),
+  asp:'Peu d’alliage, pad de cuivre encore visible, trou non rempli (moins de 75 % environ).',cause:'Fil retiré trop tôt ou fer retiré trop vite.',cons:'Tenue mécanique faible, risque de rupture sous vibrations (patte qui bouge).',rem:'Rechauffer et ajouter de l’alliage jusqu’à obtenir un cône complet.'},
+ {n:'Surchauffe',v:'Défaut',c:'#c93a2b',
+  svg:sv(`<rect x="40" y="230" width="268" height="40" fill="#2f8f63"/><rect x="332" y="230" width="308" height="40" fill="#2f8f63"/><ellipse cx="365" cy="236" rx="38" ry="9" fill="#5a3a22"/><g fill="#c8793a"><rect x="262" y="222" width="46" height="8"/><path d="M332 222 L378 206 L380 212 L332 230 Z"/><rect x="262" y="270" width="46" height="8"/><rect x="332" y="270" width="46" height="8"/><rect x="306" y="222" width="2.5" height="56"/><rect x="331.5" y="222" width="2.5" height="56"/></g><rect x="308" y="222" width="24" height="48" fill="#7e7469"/>`+LEAD+BODY+`<path d="M258 222 Q304 216 316 168 L324 168 Q336 206 384 206 L380 222 Z" fill="#7e7469" stroke="#5b534b"/><text x="408" y="160" font-size="14" font-weight="700" fill="#8f2a1f" font-family="system-ui">✘ pad décollé, carte brunie</text>`),
+  asp:'Alliage terne et sombre, carte brunie autour, pad relevé ou arraché.',cause:'Pointe trop chaude ou fer maintenu trop longtemps (&gt; 4 à 5 s).',cons:'Piste ou pad arraché (carte à réparer), composant détruit, couche intermétallique trop épaisse.',rem:'Laisser refroidir, régler la température du fer, chauffer moins longtemps ; réparer le pad si possible.'},
+ {n:'Pont',v:'Défaut',c:'#c93a2b',
+  svg:sv(`<rect x="0" y="0" width="520" height="260" fill="#2f8f63"/><g fill="#c8793a"><circle cx="190" cy="120" r="48"/><circle cx="330" cy="120" r="48"/></g><g fill="#2f8f63"><circle cx="190" cy="120" r="16"/><circle cx="330" cy="120" r="16"/></g><g fill="url(#m2)"><circle cx="190" cy="120" r="9"/><circle cx="330" cy="120" r="9"/></g><path d="M160 98 Q190 76 224 96 Q260 80 296 96 Q330 76 360 98 Q372 130 354 150 Q330 170 296 150 Q260 164 224 150 Q190 170 166 148 Q148 126 160 98 Z" fill="${SC}" stroke="#8b97a1" stroke-width="2"/><path d="M180 100 Q215 92 235 104" stroke="#fff" stroke-width="3" fill="none" opacity=".7" stroke-linecap="round"/><text x="260" y="226" text-anchor="middle" font-size="16" font-weight="700" fill="#fff" font-family="system-ui">Vue de dessus : l’alliage relie deux pads → court-circuit</text>`,'0 0 520 260'),
+  asp:'Un filet d’alliage relie deux pads ou deux broches voisines (vue de dessus).',cause:'Trop d’alliage, pas de fer propre, pas de masque d’épargne (solder mask) ou pointe trop grosse.',cons:'Court-circuit direct entre deux signaux ou l’alimentation : risque de destruction.',rem:'Passer un fer propre avec un peu de flux pour attirer l’excès, ou utiliser la tresse à dessouder.'},
+ {n:'Tombstone (CMS)',v:'Défaut',c:'#c93a2b',
+  svg:sv(`<rect x="60" y="230" width="580" height="40" fill="#2f8f63"/><g fill="#c8793a"><rect x="250" y="222" width="50" height="8"/><rect x="330" y="222" width="50" height="8"/></g><path d="M326 222 Q330 204 334 186 L368 186 Q372 212 396 222 Z" fill="${SC}" stroke="#8b97a1"/><rect x="335" y="134" width="34" height="88" rx="3" fill="#2b2e35"/><rect x="335" y="134" width="34" height="14" fill="#cfd6db"/><rect x="335" y="208" width="34" height="14" fill="#cfd6db"/><path d="M250 222 Q262 208 262 196 Z" fill="none"/><text x="110" y="170" font-size="14" font-weight="700" fill="#8f2a1f" font-family="system-ui">✘ composant dressé</text><text x="110" y="192" font-size="13" fill="#8f2a1f" font-family="system-ui">pad gauche non relié</text><path d="M245 196 L270 218" stroke="#8f2a1f" stroke-width="1.5" fill="none"/>`),
+  asp:'Un côté du composant CMS est décollé et le composant est dressé sur l’autre pad, comme une pierre tombale.',cause:'Chauffe asymétrique : un pad fond avant l’autre et la tension superficielle tire le composant. Pâte inégale, pads mal dimensionnés.',cons:'Un seul côté connecté : le circuit est ouvert.',rem:'Rechauffer le côté décollé et repousser le composant avec la pince. Corriger la dépose de pâte et le profil du four.'}
+];
+const dTabs=$('#dTabs');
+DEFECTS.forEach((d,i)=>{const b=document.createElement('button');b.textContent=d.n;b.onclick=()=>showD(i);dTabs.appendChild(b)});
+function showD(i){
+  const d=DEFECTS[i];
+  [...dTabs.children].forEach((b,k)=>b.className=k===i?'on':'');
+  $('#dSvg').innerHTML=d.svg;
+  $('#dInfo').innerHTML=`<h3 style="font-size:22px">${d.n} <span class="verdict" style="background:${d.c}">${d.v}</span></h3><dl class="d"><dt>Aspect</dt><dd>${d.asp}</dd><dt>Causes</dt><dd>${d.cause}</dd><dt>Conséquences</dt><dd>${d.cons}</dd><dt>Correction</dt><dd>${d.rem}</dd></dl>`;
+}
+showD(0);
+
+/* ============ 6. REFUSION ============ */
+const PTS=[[0,25],[60,150],[150,190],[185,217],[215,245],[255,217],[320,60]];
+function Tat(t){for(let i=0;i<PTS.length-1;i++){const a=PTS[i],b=PTS[i+1];if(t>=a[0]&&t<=b[0]){const u=(t-a[0])/(b[0]-a[0]);return lerp(a[1],b[1],u<.5?2*u*u*0+u:u)}}return PTS[PTS.length-1][1]}
+const rf=$('#rf'),X=t=>50+t*(570/320),Y=T=>280-T*(255/280);
+(function buildRf(){
+  let h=`<rect width="640" height="320" fill="#fff"/>`;
+  [0,50,100,150,200,250].forEach(T=>{h+=`<line x1="50" x2="620" y1="${Y(T)}" y2="${Y(T)}" stroke="#e3e6e1"/><text x="42" y="${Y(T)+4}" text-anchor="end" font-size="11" fill="#5b6862" font-family="ui-monospace">${T}</text>`});
+  [0,60,120,180,240,300].forEach(t=>{h+=`<text x="${X(t)}" y="298" text-anchor="middle" font-size="11" fill="#5b6862" font-family="ui-monospace">${t} s</text>`});
+  h+=`<text x="12" y="16" font-size="11" fill="#5b6862" font-family="ui-monospace">°C</text>`;
+  // phases
+  const ph=[[0,60,'#4ea3d8','Préchauffage'],[60,180,'#f0b429','Palier'],[180,255,'#e5472b','Refusion'],[255,320,'#6c8ea8','Refroid.']];
+  ph.forEach(p=>{h+=`<rect x="${X(p[0])}" y="${Y(280)}" width="${X(p[1])-X(p[0])}" height="${280-Y(280)}" fill="${p[2]}" opacity=".09"/><text x="${(X(p[0])+X(p[1]))/2}" y="${Y(262)}" text-anchor="middle" font-size="12" font-weight="600" fill="${p[2]}" font-family="system-ui">${p[3]}</text>`});
+  h+=`<line x1="50" x2="620" y1="${Y(217)}" y2="${Y(217)}" stroke="#18221e" stroke-dasharray="5 4"/><text x="624" y="${Y(217)-5}" text-anchor="end" font-size="11" font-weight="600" fill="#18221e" font-family="system-ui">217 °C : fusion SAC305</text>`;
+  let d='';for(let t=0;t<=320;t+=2)d+=(t?'L':'M')+X(t).toFixed(1)+' '+Y(Tat(t)).toFixed(1);
+  h+=`<path d="${d}" fill="none" stroke="#c7cdc8" stroke-width="3" stroke-linejoin="round"/><path id="rfLine" d="${d}" fill="none" stroke="#e5472b" stroke-width="3.5" stroke-linejoin="round" stroke-dasharray="0 9999"/><circle id="rfDot" r="7" fill="#e5472b" stroke="#fff" stroke-width="2"/>`;
+  rf.innerHTML=h;
+})();
+const rfL=$('#rfLine'),rfLen=rfL.getTotalLength();
+let rfPlaying=false;
+function rfSet(t){
+  $('#rfT').value=t;const T=Tat(t);
+  rfL.setAttribute('stroke-dasharray',`${rfLen*t/320} 99999`);
+  $('#rfDot').setAttribute('cx',X(t));$('#rfDot').setAttribute('cy',Y(T));
+  $('#rfTime').textContent=Math.round(t)+' s';$('#rfTemp').textContent=Math.round(T)+' °C';
+  let m;
+  if(t<60)m='<b>Préchauffage</b> : montée progressive (≈ 1 à 3 °C/s) pour éviter les chocs thermiques sur les composants et la carte.';
+  else if(t<180)m='<b>Palier thermique</b> (≈ 150–190 °C) : le flux de la pâte s’active, les oxydes sont éliminés et la température s’uniformise sur toute la carte.';
+  else if(t<=255)m='<b>Refusion</b> : pic ≈ 240–250 °C. Au-dessus de 217 °C l’alliage est liquide et mouille pads et terminaisons. Le temps au-dessus du liquidus doit rester d’environ 60 à 90 s.';
+  else m='<b>Refroidissement</b> contrôlé : l’alliage se solidifie, un refroidissement trop lent donne un grain grossier, trop rapide un choc thermique.';
+  $('#rfTxt').innerHTML=m;
+}
+$('#rfT').oninput=e=>{rfPlaying=false;$('#rfPlay').textContent='▶ Lecture';rfSet(+e.target.value)};
+$('#rfPlay').onclick=()=>{rfPlaying=!rfPlaying;$('#rfPlay').textContent=rfPlaying?'⏸ Pause':'▶ Lecture';if(rfPlaying&&+$('#rfT').value>=320)rfSet(0)};
+rfSet(0);
+
+/* ============ 8. QUIZ ============ */
+const QZ=[
+ {q:'En électronique, qu’est-ce qui fond pendant un brasage tendre ?',o:['La patte et le pad de cuivre','Uniquement l’alliage d’apport','Le circuit imprimé','Le flux seul'],a:1,e:'Seul l’alliage d’apport fond. Les pièces à assembler (cuivre) restent solides : c’est ce qui distingue le brasage du soudage.'},
+ {q:'Où faut-il poser la pointe du fer au début de l’opération ?',o:['Sur le fil de brasure','Sur la jonction pad + patte','Sur le corps du composant','À côté du pad'],a:1,e:'On chauffe les deux pièces à relier en même temps. L’alliage fond ensuite au contact des pièces chaudes.'},
+ {q:'Quel est le rôle principal du flux ?',o:['Refroidir la pointe','Augmenter la température de fusion','Éliminer les oxydes pour permettre le mouillage','Isoler électriquement la carte'],a:2,e:'Le flux dissout l’oxyde du cuivre : l’alliage peut alors s’étaler et diffuser dans le métal.'},
+ {q:'Une brasure en forme de boule, mate et granuleuse est probablement…',o:['Une bonne brasure','Une brasure sèche','Un excès de flux','Un pad en or'],a:1,e:'Angle de contact élevé et aspect mat : le mouillage a été mauvais. C’est un défaut à reprendre.'},
+ {q:'Que fait-on juste après avoir retiré le fer ?',o:['On souffle pour refroidir','On bouge le composant pour le centrer','On attend 2 à 3 s sans bouger','On rajoute immédiatement du fil'],a:2,e:'Un mouvement pendant la solidification fragilise le joint (brasure fissurée).'},
+ {q:'Que se passe-t-il si on chauffe beaucoup trop longtemps ?',o:['La brasure devient plus solide','Le pad peut se décoller et la couche intermétallique devient fragile','La température de fusion baisse','Rien'],a:1,e:'Trop de chaleur abîme la carte et épaissit la couche intermétallique, qui devient cassante.'}
+];
+let qi=0,score=0;
+function showQ(){
+  const box=$('#quizBox');
+  if(qi>=QZ.length){box.innerHTML=`<h3 style="font-size:24px">Score : ${score} / ${QZ.length}</h3><p>${score>=5?'Excellent, le principe est bien compris.':score>=3?'Bien, relisez les parties où vous avez hésité (flux, défauts).':'Reprenez les animations 2 à 5 puis retentez.'}</p><button class="primary" id="qr">Recommencer</button>`;$('#qr').onclick=()=>{qi=0;score=0;showQ()};return}
+  const Q=QZ[qi];
+  box.innerHTML=`<div class="small">Question ${qi+1} / ${QZ.length}</div><div class="q">${Q.q}</div>`;
+  Q.o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{
+    [...box.querySelectorAll('.opt')].forEach((x,k)=>{x.disabled=true;if(k===Q.a)x.classList.add('good');else if(k===i)x.classList.add('bad')});
+    if(i===Q.a)score++;
+    const fb=box.querySelector('.fb');fb.style.display='block';fb.innerHTML=(i===Q.a?'<b>Exact.</b> ':'<b>Pas tout à fait.</b> ')+Q.e;
+    const n=document.createElement('button');n.className='primary';n.style.marginTop='10px';n.textContent=qi===QZ.length-1?'Voir le score':'Question suivante →';n.onclick=()=>{qi++;showQ()};box.appendChild(n)};box.appendChild(b)});
+  const fb=document.createElement('div');fb.className='fb';box.appendChild(fb);
+}
+showQ();
+
+/* ============ boucle d'animation ============ */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  frame(dt);
+  const dr=$('#fluxOn').checked?25:140, dro=$('#fluxOn').checked?0:.9;
+  const target=dr*Math.PI/180;
+  if(Math.abs(target-theta)>.002){theta+=(target-theta)*(1-Math.exp(-3*dt));drawDrop();
+    $('#ox').setAttribute('opacity',lerp(.9,0,clamp((140*Math.PI/180-theta)/(115*Math.PI/180),0,1)));
+    $('#oxT').setAttribute('opacity',lerp(1,0,clamp((140*Math.PI/180-theta)/(115*Math.PI/180),0,1)))}
+  if(rfPlaying){let t=+$('#rfT').value+dt*40;if(t>=320){t=320;rfPlaying=false;$('#rfPlay').textContent='▶ Lecture'}rfSet(t)}
+  requestAnimationFrame(loop);
+}
+drawDrop();
+requestAnimationFrame(loop);
+
+})();
+</script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const sstep=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
+function mix(c1,c2,t){t=clamp(t,0,1);const p=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));const a=p(c1),b=p(c2);return '#'+a.map((v,i)=>Math.round(lerp(v,b[i],t)).toString(16).padStart(2,'0')).join('')}
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+
+/* ---------- état ---------- */
+const BASE={alloy:'sac',wireD:.8,flux:'core',set:340,power:45,tip:'cone',leadD:.8,pad:'std'};
+let S=Object.assign({},BASE),P=Phys.params(S),VR=Phys.vrange(P),tip=Phys.newTip(P),joints=[0,1,2,3].map(i=>Phys.newJoint(i,P)),sel=0;
+const u={iron:false,wire:false,shake:false};
+const liq=()=>P.A.melt;
+const journal=[],hist=[];
+
+/* ---------- carte en perspective ---------- */
+const U=40,C30=.866,S30=.5,OX=330,OY=50;
+const iso=(x,y,z=0)=>[OX+(x-y)*C30*U,OY+(x+y)*S30*U-z];
+const pt=a=>a.map(v=>v.map(n=>n.toFixed(1)).join(',')).join(' ');
+(function(){
+  const g=$('#board');
+  el('polygon',{points:pt([iso(.3,.3,-14),iso(9.3,.3,-14),iso(9.3,6.3,-14),iso(.3,6.3,-14)]),fill:'#0b1f2e',opacity:.12},g);
+  el('polygon',{points:pt([iso(0,6),iso(9,6),iso(9,6,-12),iso(0,6,-12)]),fill:'#1b6b4a'},g);
+  el('polygon',{points:pt([iso(9,0),iso(9,6),iso(9,6,-12),iso(9,0,-12)]),fill:'#14563b'},g);
+  el('polygon',{points:pt([iso(0,0),iso(9,0),iso(9,6),iso(0,6)]),fill:'#35a874',stroke:'#1f7a54','stroke-width':1.5},g);
+  // plan de masse (pad 4) : zone de cuivre sous le pad
+  const gp=[iso(3.7,3.1),iso(5.5,3.1),iso(5.5,4.7),iso(3.7,4.7)];
+  el('polygon',{points:pt(gp),fill:'#2d9368',stroke:'#e0955a','stroke-width':1.2,'stroke-dasharray':'4 3',opacity:.9},g);
+  // grand pad de cuivre (pad 3)
+  const [bx,by]=iso(2.5,3.8);el('ellipse',{cx:bx,cy:by,rx:19,ry:10.5,fill:'#d9874c',opacity:.9},g);
+  for(let r=0;r<2;r++)for(let i=0;i<11;i++){const x=.8+i*.75+(r?.375:0),y=5.15+r*.45;if(x>8.4)continue;const [sx,sy]=iso(x,y);
+    el('ellipse',{cx:sx,cy:sy,rx:7,ry:4,fill:'#e0955a'},g);el('ellipse',{cx:sx,cy:sy,rx:3.1,ry:1.8,fill:'#0b1f2e'},g)}
+  const flat=(x,y,txt,size,fill,op)=>{const [sx,sy]=iso(x,y);const t=el('text',{transform:`translate(${sx} ${sy}) matrix(.866 .5 -.866 .5 0 0)`,'text-anchor':'middle','dominant-baseline':'central','font-size':size,'font-weight':700,fill,opacity:op||1,'font-family':'ui-monospace,Menlo,Consolas,monospace'},g);t.textContent=txt};
+  [[1.9,1.5,5.5,2.1,'R1'],[1.9,3.5,5.5,4.1,'R2']].forEach(([x1,y1,x2,y2,n])=>{
+    el('polygon',{points:pt([iso(x1,y1),iso(x2,y1),iso(x2,y2),iso(x1,y2)]),fill:'none',stroke:'#fff','stroke-width':1.6,'stroke-linejoin':'round',opacity:.9},g);
+    flat(3.7,(y1+y2)/2,n,15,'#fff',.95)});
+  [[1.2,1.8,'1'],[6.2,1.8,'2'],[1.2,3.8,'3'],[6.2,3.8,'4']].forEach(([x,y,n])=>flat(x,y,n,15,'#fff',.95));
+  flat(4.5,.55,'LAB BRASURE · PRATIQUE',12,'#fff',.7);
+  flat(4.6,5.0,'',10,'#fff',.7);
+})();
+const POS=[[2.5,1.8],[4.5,1.8],[2.5,3.8],[4.5,3.8]].map(p=>iso(p[0],p[1]));
+const PADR=[11,11,15,11];
+const LABOFF=[[-40,-84],[26,30],[-170,-40],[26,28]];
+
+/* ---------- éléments des pads ---------- */
+const E=[];
+POS.forEach((p,i)=>{
+  const g=el('g',{transform:`translate(${p[0]} ${p[1]})`},$('#pads'));
+  const glow=el('circle',{r:40,fill:'url(#heatg)',opacity:0,cy:-6},g);
+  const burn=el('ellipse',{rx:PADR[i]+4,ry:(PADR[i]+4)*.57,fill:'#4a2b17',opacity:0},g);
+  const ring=el('ellipse',{rx:PADR[i],ry:PADR[i]*.57,fill:'#e0955a'},g);
+  el('ellipse',{rx:4.6,ry:2.7,fill:'#0b1f2e'},g);
+  const selr=el('ellipse',{rx:PADR[i]+10,ry:(PADR[i]+10)*.57,fill:'none',stroke:'#0f766e','stroke-width':2,'stroke-dasharray':'5 4'},g);
+  const leg=el('rect',{x:-4,y:-38,width:8,height:38,fill:'url(#legg)'},g);
+  const legTop=el('ellipse',{cy:-38,rx:4,ry:2,fill:'#eef2f5'},g);
+  const sol=el('path',{d:'',fill:'#c5ced6',stroke:'#8b97a1','stroke-width':1,opacity:0},g);
+  const shine=el('path',{d:'',fill:'none',stroke:'#fff','stroke-width':2.5,'stroke-linecap':'round',opacity:0},g);
+  const crack=el('path',{d:'',fill:'none',stroke:'#3b434b','stroke-width':1.2,opacity:0},g);
+  const hit=el('ellipse',{cx:0,cy:-14,rx:30,ry:38,fill:'transparent',style:'cursor:pointer'},g);
+  hit.addEventListener('pointerdown',e=>{e.preventDefault();select(i)});
+  const c=el('g',{opacity:0},$('#callouts'));
+  const ln=el('line',{x1:p[0],y1:p[1]-14,x2:p[0],y2:p[1]-14,stroke:'#1e293b','stroke-width':1.2},c);
+  const rc=el('rect',{x:0,y:0,height:20,rx:10,fill:'#fff',stroke:'#1e293b','stroke-width':1.5},c);
+  const tx=el('text',{x:0,y:0,'font-size':11,'font-weight':700,'font-family':'ui-monospace,Menlo,Consolas,monospace',fill:'#1e293b'},c);
+  E.push({g,glow,burn,ring,selr,sol,shine,crack,c,rc,tx,ln,leg,legTop});
+});
+
+/* ---------- géométrie de la brasure à partir de la physique ---------- */
+function bez(P0,P1,P2,t){const a=(1-t)*(1-t),b=2*(1-t)*t,c=t*t;return [a*P0[0]+b*P1[0]+c*P2[0],a*P0[1]+b*P1[1]+c*P2[1]]}
+function filletCtrl(R,rl,h,th){
+  const r=th*Math.PI/180,cs=Math.cos(r),sn=Math.sin(r);
+  const t=cs>0.2?0.55*(R-rl)/cs:0.6*Math.max(R-rl,.3)/Math.max(Math.abs(cs),.25);
+  const tt=Math.min(t,h*0.95/Math.max(sn,.2));
+  return [R-tt*cs,tt*sn];
+}
+function filletVol(R,rl,h,th){
+  const P0=[R,0],P2=[rl,h],P1=filletCtrl(R,rl,h,th);let V=0,prev=P0;
+  for(let k=1;k<=24;k++){const q=bez(P0,P1,P2,k/24);const rm=(q[0]+prev[0])/2,dy=q[1]-prev[1];V+=Math.PI*Math.max(0,rm*rm-rl*rl)*dy;prev=q}
+  return V;
+}
+function shapeParams(j){
+  if(j.V<0.06)return null;
+  const rp=1.25,rl=P.rl;
+  const th=j.hadLiq?j.th:140;
+  const Vh=Math.min(j.V,j.H*P.hole),Vf=Math.max(0.06,j.V-Vh);
+  if(th>=92){ // goutte non mouillante : calotte sphérique
+    const c=Math.cos(th*Math.PI/180);let Rs=Math.cbrt(3*Vf/(Math.PI*(2+c)*(1-c)*(1-c)));
+    let a=Rs*Math.sin(th*Math.PI/180),h=Rs*(1-c);
+    if(a>rp*1.1){a=rp*1.1;let lo=.05,hi=4;for(let k=0;k<30;k++){const m=(lo+hi)/2;(Math.PI*m/6*(3*a*a+m*m)<Vf)?lo=m:hi=m}h=(lo+hi)/2;Rs=(a*a+h*h)/(2*h)}
+    return {cap:true,a,h,Rs,Vf};
+  }
+  const b=sstep((j.V-3.8)/3);
+  const thE=th+100*b;
+  const R=Math.min(1.05*rp,Math.sqrt(Vf/(Math.PI*.25)));
+  let lo=.05,hi=3.3;
+  for(let k=0;k<24;k++){const m=(lo+hi)/2;(filletVol(R,rl,m,thE)<Vf)?lo=m:hi=m}
+  return {cap:false,R,h:(lo+hi)/2,thE,Vf};
+}
+function outline(sp,rl,kx,ky,n){ // points (x,y) de la moitié droite, de la base vers le sommet
+  const pts=[];
+  if(sp.cap){const psi=Math.atan2(sp.a,sp.Rs-sp.h);for(let k=0;k<=n;k++){const f=psi-2*psi*k/n;pts.push([Math.sin(f)*sp.Rs,sp.h-sp.Rs+Math.cos(f)*sp.Rs])}return pts.map(q=>[q[0]*kx,q[1]*ky])}
+  const P0=[sp.R,0],P2=[rl,sp.h],P1=filletCtrl(sp.R,rl,sp.h,sp.thE);
+  for(let k=0;k<=n;k++){const q=bez(P0,P1,P2,k/n);pts.push([q[0]*kx,q[1]*ky])}
+  return pts;
+}
+function bodyPath(sp,rl,kx,ky,yb){ // chemin fermé centré sur x=0 ; yb : ordonnée de la base (pixels, y vers le bas)
+  const n=22,half=outline(sp,rl,kx,ky,n);
+  let d='';
+  if(sp.cap){ // calotte : demi-points déjà de droite à gauche
+    half.forEach((q,k)=>{d+=(k?'L':'M')+q[0].toFixed(1)+' '+(yb-q[1]).toFixed(1)});
+    const a=half[0][0];d+=`A${a.toFixed(1)} ${(a*.55).toFixed(1)} 0 0 0 ${(half[0][0]).toFixed(1)} ${yb}Z`;
+    return d;
+  }
+  half.forEach((q,k)=>{d+=(k?'L':'M')+q[0].toFixed(1)+' '+(yb-q[1]).toFixed(1)});
+  for(let k=n;k>=0;k--){d+='L'+(-half[k][0]).toFixed(1)+' '+(yb-half[k][1]).toFixed(1)}
+  const R=half[0][0];d+=`A${R.toFixed(1)} ${(R*.55).toFixed(1)} 0 0 0 ${R.toFixed(1)} ${yb}Z`;
+  return d;
+}
+
+/* ---------- résultats ---------- */
+const RES={
+ good:{n:'Bonne brasure',tag:'ok',short:'BONNE ✓',d:'Cordon concave et brillant, trou rempli, angle de mouillage faible, couche intermétallique fine : la liaison est fiable.'},
+ cold:{n:'Boule froide',tag:'bad',short:'BOULE FROIDE ✗',d:()=>`Le pad n’avait pas atteint la fusion (${liq()} °C) : l’alliage ne mouille pas, il reste en boule (angle de contact élevé) et n’accroche pas.`},
+ dry:{n:'Brasure sèche',tag:'bad',short:'SÈCHE ✗',d:'Mouillage partiel : chauffe insuffisante, trou mal rempli ou couche intermétallique trop fine. Liaison fragile et mate.'},
+ few:{n:'Pas assez d’alliage',tag:'bad',short:'MANQUE ✗',d:'Volume trop faible : le trou n’est pas rempli et le pad reste visible. Tenue mécanique faible.'},
+ excess:{n:'Trop d’alliage',tag:'bad',short:'EXCÈS ✗',d:'Le contour du pad bloque l’alliage, qui se bombe : mouillage impossible à contrôler, risque de pont.'},
+ overheat:{n:'Brasure surchauffée',tag:'bad',short:'SURCHAUFFE ✗',d:'Couche intermétallique épaisse (cassante) et pad fragilisé : trop de chaleur ou de temps.'},
+ lifted:{n:'Pad décollé',tag:'bad',short:'PAD LEVÉ ✗',d:'La résine du circuit a perdu son adhérence : le pad s’est soulevé. Le flux était consommé depuis longtemps.'},
+ disturbed:{n:'Brasure perturbée',tag:'bad',short:'PERTURBÉE ✗',d:'La carte a bougé pendant la solidification : fissures internes, surface grisâtre et granuleuse.'}
+};
+function finish(i,key){
+  const j=joints[i];if(j.res)return;j.res=key;
+  const m=Phys.measures(j,P);
+  journal.unshift({i:i+1,key,c:j.tc,m,alloy:`${P.A.n} · Ø${S.wireD} mm · ${S.set} °C · ${S.power} W`});
+  renderLog();updateChips();if(i===sel)showResult();
+}
+function resetJoint(i){const j=joints[i],n=Phys.newJoint(i,P);n.Tp=j.Tp;n.Tl=j.Tl;joints[i]=n;if(i===sel)showResult();updateChips()}
+
+/* ---------- interface ---------- */
+function select(i){sel=i;showResult();updateChips();$('#padTag').textContent=`Pad ${i+1} · ${Phys.CFG[i].n.toLowerCase()}`;hist.length=0}
+const chips=$('#padChips');
+[0,1,2,3].forEach(i=>{const b=document.createElement('button');b.className='pchip';b.textContent=i+1;b.setAttribute('aria-label','Pad '+(i+1));b.title=Phys.CFG[i].n;b.onclick=()=>select(i);chips.appendChild(b)});
+function updateChips(){
+  [...chips.children].forEach((b,i)=>{const j=joints[i];b.className='pchip'+(i===sel?' sel':'')+(j.res?(j.res==='good'?' ok':' ko'):'')});
+  $('#score').textContent=`Réussies : ${joints.filter(j=>j.res==='good').length} / 4`;
+}
+function showResult(){
+  const j=joints[sel],b=$('#rBadge');
+  if(j.res){const r=RES[j.res];$('#rName').textContent=r.n;$('#rDesc').textContent=typeof r.d==='function'?r.d():r.d;b.className='badge b-'+r.tag;b.textContent=r.tag==='ok'?'réussie':'à refaire'}
+  else{$('#rName').textContent='En cours…';$('#rDesc').textContent='Le verdict tombe quand l’alliage est figé. Mesures en direct ci-dessous.';b.className='badge b-idle';b.textContent='en attente';if(!j.active){$('#rName').textContent='En attente';$('#rDesc').textContent='Choisissez un pad, chauffez-le puis apportez l’alliage.'}}
+}
+function renderLog(){
+  const l=$('#log');l.innerHTML='';
+  journal.slice(0,8).forEach(x=>{const d=document.createElement('div');d.className=x.key==='good'?'ok':'ko';
+    d.textContent=`Pad ${x.i} · ${RES[x.key].n} · contact ${x.c.toFixed(1)} s · θ ${Math.round(x.m.theta)}° · IMC ${x.m.imc.toFixed(1)} µm · ${x.m.V.toFixed(1)} mm³ · ${x.alloy}`;l.appendChild(d)});
+}
+function kvRow(k,v,cls){return `<span>${k}</span><span class="${cls||''}">${v}</span>`}
+function hintSet(t,kind){const h=$('#hint');const c='ov h '+(kind||'');if(h.className!==c)h.className=c;h.firstElementChild.textContent=kind==='good'?'BIEN':kind==='bad'?'ATTENTION':kind==='warn'?'À NOTER':'CONSEIL';if($('#hintT').textContent!==t)$('#hintT').textContent=t}
+function autoHint(){
+  const j=joints[sel],L=liq(),Tj=Math.min(j.Tp,j.Tl);
+  if(j.res){const r=RES[j.res];hintSet(r.tag==='ok'?'Brasure réussie : choisissez un autre pad ou comparez les mesures.':`${r.n} : appuyez sur « Refaire ce pad » pour réessayer.`,r.tag==='ok'?'good':'bad');return}
+  if(j.D>=1){hintSet('Le pad se décolle : relâchez le fer immédiatement.','bad');return}
+  if(u.shake&&j.V>0.3&&Tj<L&&Tj>L-30){hintSet('Mouvement pendant la solidification : la brasure sera perturbée.','bad');return}
+  if(u.iron&&j.D>.5){hintSet('Le pad est fragilisé : plus de 8 à 10 s à cette température et il se décolle.','bad');return}
+  if(u.wire&&P.fluxMode==='none'&&j.O>.3&&Tj>=L-3){hintSet('Fil sans flux : l’oxyde reste en place, l’alliage ne mouillera pas.','bad');return}
+  if(u.wire&&!u.iron&&Tj<L-3){hintSet('Rien ne fond : le pad est trop froid. Chauffez d’abord avec le fer.','warn');return}
+  if(u.wire&&u.iron&&Tj<L-3&&j.V>0.2){hintSet('L’alliage fond sur la pointe, pas sur le pad : il reste en boule tant que le pad est froid.','bad');return}
+  if(u.wire&&j.V>VR[1]){hintSet('Trop d’alliage : relâchez S, sinon boule ou pont.','bad');return}
+  if(u.wire&&j.V>VR[0]){hintSet('Volume juste : relâchez S, puis laissez le trou se remplir quelques instants.','good');return}
+  if(u.wire&&j.V>0){hintSet('Le flux du fil nettoie l’oxyde et l’alliage coule par capillarité.','');return}
+  if(u.iron&&tip.Q<.55&&Tj<L){hintSet('Pointe oxydée : mauvais transfert de chaleur. Utilisez « Éponge + étamage ».','warn');return}
+  if(u.iron&&Tj<L){hintSet(`Chauffe pad ET patte : l’alliage ne mouille qu’au-dessus de ${L} °C.`+(j.i===3?' Ce pad est relié au plan de masse : il chauffe lentement.':''),'');return}
+  if(u.iron&&Tj>=L&&j.V===0){hintSet('Pad assez chaud : maintenez S et touchez le pad avec le fil, pas la pointe.','good');return}
+  if(u.iron&&j.V>0){hintSet('Quand le volume est bon, relâchez S puis retirez le fer.','');return}
+  if(j.V>0&&Tj>=L){hintSet('Ne bougez pas : l’alliage se fige sous '+L+' °C.','');return}
+  hintSet('Maintenez C pour poser le fer sur le pad '+(sel+1)+'.','');
+}
+
+/* entrées */
+function holdBtn(id,key){
+  const b=$(id);
+  const on=e=>{e.preventDefault();u[key]=true;b.classList.add('on');try{b.setPointerCapture(e.pointerId)}catch(_){}};
+  const off=()=>{u[key]=false;b.classList.remove('on')};
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+}
+holdBtn('#bIron','iron');holdBtn('#bWire','wire');holdBtn('#bShake','shake');
+const KEYS={c:['iron','#bIron'],s:['wire','#bWire'],m:['shake','#bShake']};
+addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const t=e.target&&e.target.tagName;if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;const k=e.key.toLowerCase();
+  if(KEYS[k]){u[KEYS[k][0]]=true;$(KEYS[k][1]).classList.add('on')}else if('1234'.includes(k)&&k.length===1)select(+k-1)});
+addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(KEYS[k]){u[KEYS[k][0]]=false;$(KEYS[k][1]).classList.remove('on')}});
+addEventListener('blur',()=>{for(const k in KEYS){u[KEYS[k][0]]=false;$(KEYS[k][1]).classList.remove('on')}});
+$('#resetPad').onclick=()=>resetJoint(sel);
+$('#resetAll').onclick=()=>{journal.length=0;renderLog();applySettings()};
+$('#bClean').onclick=()=>{tip.Q=1};
+
+/* ---------- boucle ---------- */
+const iron=$('#sIron'),wire=$('#sWire'),smoke=$('#sSmoke'),parts=[];
+const ic={ix:POS[0][0]+75,iy:POS[0][1]-62,wx:POS[0][0]-72,wy:POS[0][1]-36},iT={x:470,y:100},iW={x:210,y:140};
+let spawn=0,histAcc=0;const dummy=Phys.newTip(P);
+function frame(dt){
+  tip.Q=Math.max(.15,tip.Q-0.003*dt);
+  joints.forEach((j,k)=>{
+    if(k===sel)Phys.step(j,tip,u,dt,P);
+    else{dummy.T=P.set;Phys.step(j,dummy,{iron:false,wire:false,shake:false},dt,P)}
+    if(j.res)return;
+    const live=(k===sel&&(u.iron||u.wire));
+    const Tj=Math.min(j.Tp,j.Tl);
+    if(j.D>=1&&!(k===sel&&u.iron))finish(k,'lifted');
+    else if(j.frozen&&!live&&j.coolT>.4)finish(k,Phys.classify(j,P));
+    else if(j.V<.05&&j.active&&!live&&j.idle>2.5&&Tj<liq()-10){resetJoint(k);if(k===sel)hintFlash('Aucun alliage déposé : le pad est remis à neuf.')}
+  });
+  render(dt);
+}
+let flashT=0,flashMsg='';
+function hintFlash(m){flashMsg=m;flashT=3}
+function render(dt){
+  const j=joints[sel],L=liq(),Tj=Math.min(j.Tp,j.Tl);
+  const [px,py]=POS[sel],k=1-Math.exp(-9*dt);
+  const inContact=u.iron&&!j.res,wContact=u.wire&&!j.res;
+  const tI=inContact?[px+5,py-7]:[px+75,py-62],tW=wContact?[px-6,py-9]:[px-72,py-36];
+  ic.ix+=(tI[0]-ic.ix)*k;ic.iy+=(tI[1]-ic.iy)*k;ic.wx+=(tW[0]-ic.wx)*k;ic.wy+=(tW[1]-ic.wy)*k;
+  iron.setAttribute('transform',`translate(${ic.ix} ${ic.iy})`);wire.setAttribute('transform',`translate(${ic.wx} ${ic.wy})`);
+  $('#tipPoly').setAttribute('fill',mix('#e9edf0','#d6a07a',clamp((340-tip.T)/200,0,1)*0+ (1-tip.Q)*.9));
+  // pads
+  joints.forEach((q,i)=>{
+    const e=E[i],sp=shapeParams(q);
+    e.glow.setAttribute('opacity',clamp((q.Tp-70)/270,0,1)*.9);
+    e.selr.setAttribute('opacity',i===sel?1:0);
+    const lifted=q.D>=1||q.res==='lifted';
+    e.burn.setAttribute('opacity',lifted?1:clamp((q.D-.35)*1.4,0,.7));
+    e.ring.setAttribute('transform',lifted?'translate(5 -5) rotate(-12)':'');
+    e.ring.setAttribute('fill',mix('#e0955a','#8a5a3a',q.O*(q.V>0?0:1)*.8));
+    if(sp){
+      e.sol.setAttribute('d',bodyPath(sp,P.rl,8.8,8.8,0));e.sol.setAttribute('opacity',1);
+      const liquid=q.V>0.05&&Tj>=liq();const liqf=liquid?1:clamp((Tj-(liq()-12))/12,0,1);
+      const matte=q.res?clamp(q.O*2+(q.disturbed?1:0)+(q.D>.55?.45:0)+((q.th>55&&q.hadLiq)?.35:0)+(sp.cap?.5:0),0,1):0;
+      e.sol.setAttribute('fill',lifted?'#7e7469':mix(mix('#cfd6dc','#9aa4ad',matte),'#ffc27a',liqf));
+            const hh=sp.h*8.8;
+      e.shine.setAttribute('d',sp.cap?`M${(-sp.a*6.5).toFixed(1)} ${(-sp.h*5).toFixed(1)} q2 ${(-sp.h*4).toFixed(1)} 6 ${(-sp.h*6.5).toFixed(1)}`:`M${(-sp.R*6.5).toFixed(1)} -2 Q${(-sp.R*3).toFixed(1)} ${(-hh*.2).toFixed(1)} -5 ${(-hh+3).toFixed(1)}`);
+      e.shine.setAttribute('opacity',(1-liqf)*(1-matte)*.7);
+      if(q.disturbed&&q.res){e.crack.setAttribute('d',`M-9 ${-hh*.2} l5 ${-hh*.25} l-3 ${-hh*.2} M6 ${-hh*.15} l-4 ${-hh*.3}`);e.crack.setAttribute('opacity',1)}else e.crack.setAttribute('opacity',0);
+    }else{e.sol.setAttribute('opacity',0);e.shine.setAttribute('opacity',0);e.crack.setAttribute('opacity',0)}
+    if(q.res){const r=RES[q.res];e.c.setAttribute('opacity',1);e.tx.textContent=r.short;const w=r.short.length*6.7+20,[ox,oy]=LABOFF[i],bx=POS[i][0]+ox,by=POS[i][1]+oy;
+      e.rc.setAttribute('width',w);e.rc.setAttribute('x',bx);e.rc.setAttribute('y',by);e.tx.setAttribute('x',bx+10);e.tx.setAttribute('y',by+14);
+      e.ln.setAttribute('x2',clamp(POS[i][0],bx,bx+w));e.ln.setAttribute('y2',oy<0?by+20:by);e.ln.setAttribute('x1',POS[i][0]);e.ln.setAttribute('y1',oy<0?POS[i][1]-40:POS[i][1]+4);
+      const col=r.tag==='ok'?'#15803d':'#b91c1c';e.rc.setAttribute('stroke',col);e.tx.setAttribute('fill',col)}else e.c.setAttribute('opacity',0);
+  });
+  // fumées : flux qui brûle et alliage qui fond
+  const fume=(wContact&&j.V>.02&&Tj>=L-3&&j.V<Phys.VMAX)||(j.F>.15&&j.Tp>200&&!j.res);
+  if(fume){spawn+=dt*(wContact?7:3);while(spawn>1&&parts.length<28){spawn--;
+    const c=el('circle',{r:3,fill:'#94a3b8'},smoke);parts.push({c,x:px+(Math.random()-.5)*16,y:py-24,vx:(Math.random()-.5)*8,vy:-(24+Math.random()*18),r:3,a:.6})}}
+  for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.x+=q.vx*dt;q.y+=q.vy*dt;q.r+=dt*6;q.a-=dt*.35;
+    if(q.a<=0){q.c.remove();parts.splice(i,1);continue}
+    q.c.setAttribute('cx',q.x);q.c.setAttribute('cy',q.y);q.c.setAttribute('r',q.r);q.c.setAttribute('opacity',q.a*.7)}
+  // loupe en coupe
+  const lk=$('#link');lk.setAttribute('x1',px+14);lk.setAttribute('y1',py-26);lk.setAttribute('x2',560);lk.setAttribute('y2',150);
+  $('#insetT').textContent='COUPE · PAD '+(sel+1);
+  const sp=shapeParams(j),lifted=j.D>=1||j.res==='lifted',liquid=j.V>.05&&Tj>=L;
+  $('#iOx').setAttribute('opacity',clamp(j.O,0,1)*.85);
+  $('#iHeatL').setAttribute('opacity',clamp((j.Tl-25)/260,0,1)*.6);$('#iHeatP').setAttribute('opacity',clamp((j.Tp-25)/260,0,1)*.6);
+  const liqf=liquid?1:clamp((Tj-(L-12))/12,0,1);
+  const col=mix(mix('#cfd6dc','#9aa4ad',j.res?clamp(j.O*2+(j.disturbed?1:0),0,1):0),'#ffc27a',liqf);
+  const KX=46,KY=34;
+  if(sp){
+    const bp=bodyPath(sp,4*(S.leadD/.8)/46,KX,KY,0);
+    // translation vers (320,222)
+    $('#iSolP').setAttribute('d',bp);$('#iSolP').setAttribute('transform','translate(320 222)');
+    $('#iGlow').setAttribute('d',bp);$('#iGlow').setAttribute('transform','translate(320 222)');
+    $('#iSolP').setAttribute('fill',col);$('#iSolP').setAttribute('opacity',1);$('#iGlow').setAttribute('opacity',liqf*.8);
+  }else{$('#iSolP').setAttribute('opacity',0);$('#iGlow').setAttribute('opacity',0)}
+  const fillPx=48*clamp(j.V>0?Math.min(1,j.H):0,0,1);
+  $('#iHole').setAttribute('d',fillPx>.5?`M308 222 h24 v${fillPx.toFixed(1)} h-24 Z`:'');$('#iHole').setAttribute('fill',col);
+  const imc=Phys.imc(j,P);
+  if(imc>0&&j.W>.15){const w=clamp(imc*1.6,1,9);const iw=$('#iImc');iw.setAttribute('d','M262 222 H308 M332 222 H378 M316 222 V176 M324 222 V176');iw.setAttribute('stroke-width',w);iw.setAttribute('opacity',.9);iw.setAttribute('stroke',imc>3.4?'#4a2d7a':'#7b5ea7')}else $('#iImc').setAttribute('opacity',0);
+  $('#iBurn').setAttribute('opacity',lifted?1:clamp((j.D-.35)*1.4,0,.7));
+  $('#iPadR').setAttribute('transform',lifted?'rotate(-14 332 222)':'');
+  const tiA=inContact?[330,214]:[470,100],wiA=wContact?[310,214]:[210,140];
+  iT.x+=(tiA[0]-iT.x)*k;iT.y+=(tiA[1]-iT.y)*k;iW.x+=(wiA[0]-iW.x)*k;iW.y+=(wiA[1]-iW.y)*k;
+  $('#iTip').setAttribute('transform',`translate(${iT.x} ${iT.y})`);$('#iWire').setAttribute('transform',`translate(${iW.x} ${iW.y})`);
+  // HUD
+  $('#tNum').innerHTML=Math.round(j.Tp)+'<small>°C</small>';
+  $('#tSub').textContent=`pad ${Math.round(j.Tp)} · patte ${Math.round(j.Tl)} · pointe ${Math.round(tip.T)}/${P.set} · fusion ${L}`;
+  const tb=$('#tBadge');if(Tj<60){tb.className='badge b-cold';tb.textContent='froid'}else if(Tj<L){tb.className='badge b-warm';tb.textContent='chauffe'}else{tb.className='badge b-melt';tb.textContent='fond'}
+  $('#cNum').innerHTML=j.tc.toFixed(1)+'<small>s</small>';
+  $('#cMk').style.left=`calc(${clamp(j.tc/12,0,1)*100}% - 1px)`;
+  const cb=$('#cBadge');
+  if(j.tc===0){cb.className='badge b-idle';cb.textContent='—'}else if(j.tc<2){cb.className='badge b-warm';cb.textContent='court'}else if(j.tc<=5){cb.className='badge b-ok';cb.textContent='idéal'}else if(j.tc<=10){cb.className='badge b-warm';cb.textContent='long'}else{cb.className='badge b-bad';cb.textContent='danger'}
+  $('#qMk').style.left=`calc(${clamp(j.V/Phys.VMAX,0,1)*100}% - 1px)`;
+  const qb=$('#qBadge');if(j.V<.05){qb.className='badge b-idle';qb.textContent='vide'}else if(j.V<VR[0]){qb.className='badge b-warm';qb.textContent='peu'}else if(j.V<=VR[1]){qb.className='badge b-ok';qb.textContent='juste'}else{qb.className='badge b-bad';qb.textContent='trop'}
+  $('#fluxL').textContent=`flux actif : ${Math.round(j.F*100)} % · oxyde : ${Math.round(j.O*100)} %`;
+  $('#tipQ').textContent=(tip.Q>.8?'étamée ':tip.Q>.5?'ternie ':'oxydée ')+Math.round(tip.Q*100)+' %';
+  $('#stat').textContent=`pad ${sel+1} · ${Math.round(j.Tp)} °C`;
+  // mesures en direct
+  const m=Phys.measures(j,P);
+  const th=j.V>.05?(j.hadLiq?m.theta:140):null;
+  $('#meas').innerHTML=
+    kvRow('Angle θ',th==null?'—':Math.round(th)+'°',th==null?'':th<45?'okc':th<95?'wc':'kc')+
+    kvRow('Trou rempli',j.V>0?Math.round(m.fill*100)+' %':'—',j.V>0?(m.fill>=.7?'okc':'wc'):'')+
+    kvRow('Couche IMC',m.imc>0?m.imc.toFixed(1)+' µm':'—',m.imc>3.4?'kc':m.imc>=.5?'okc':'')+
+    kvRow('Volume',j.V>0?m.V.toFixed(1)+' mm³':'—',j.V>VR[1]?'kc':j.V>=VR[0]?'okc':j.V>0?'wc':'')+
+    kvRow('Pad dégradé',Math.round(clamp(j.D,0,1)*100)+' %',j.D>.55?'kc':j.D>.25?'wc':'okc');
+  // historique
+  histAcc+=dt;if(histAcc>=.1){histAcc=0;hist.push([j.Tp,j.Tl,tip.T]);if(hist.length>160)hist.shift();drawChart()}
+  if(flashT>0){flashT-=dt;hintSet(flashMsg,'warn')}else autoHint();
+}
+const chart=$('#chart');
+function drawChart(){
+  const W=240,H=70,Y=T=>H-6-(T/440)*(H-14),L=liq();
+  let h=`<line x1="0" x2="${W}" y1="${Y(P.set)}" y2="${Y(P.set)}" stroke="#d97706" stroke-dasharray="4 3" stroke-width="1"/><text x="3" y="${Y(P.set)-3}" font-size="8" fill="#d97706" font-family="ui-monospace,monospace">POINTE ${P.set}</text>`;
+  h+=`<line x1="0" x2="${W}" y1="${Y(L)}" y2="${Y(L)}" stroke="#b91c1c" stroke-dasharray="4 3" stroke-width="1"/><text x="3" y="${Y(L)+9}" font-size="8" fill="#b91c1c" font-family="ui-monospace,monospace">FUSION ${L}</text>`;
+  if(hist.length>1){[[0,'#0f766e'],[1,'#7c3aed']].forEach(([n,c])=>{h+=`<path d="${hist.map((q,i)=>(i?'L':'M')+(i/160*W).toFixed(1)+' '+Y(q[n]).toFixed(1)).join('')}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round"/>`})}
+  chart.innerHTML=h;
+}
+
+/* ---------- réglages de l'atelier ---------- */
+const PRESETS=[
+ {n:'Référence',o:{},note:'SAC305, fil Ø 0,8 mm, 340 °C, station 45 W : fenêtre de brasage confortable sur les pads 1 à 3. Le plan de masse (pad 4) chauffe plus lentement.'},
+ {n:'Alliage au plomb',o:{alloy:'snpb',set:320},note:'Sn63/Pb37 fond à 183 °C : le pad atteint la fusion plus tôt, l’alliage mouille mieux (θ plus faible) et la marge avant dégradation est plus large.'},
+ {n:'Fer trop froid',o:{set:280},note:'À 280 °C, seuls les pads 1 et 2 atteignent la fusion, lentement ; les pads 3 et 4 n’y arrivent jamais : boules froides.'},
+ {n:'Fer trop chaud',o:{set:400},note:'À 400 °C la fusion est très rapide, mais le pad se décolle après quelques secondes seulement et la couche intermétallique devient épaisse.'},
+ {n:'Sans plomb économique',o:{alloy:'sncu'},note:'Sn99,3Cu0,7 fond à 227 °C et mouille mal : angle θ plus élevé, brasures sèches fréquentes, pad 4 inaccessible à 340 °C.'},
+ {n:'Basse température (SnBi)',o:{alloy:'snbi',set:260},note:'Fond à 138 °C : on peut régler le fer bas et protéger les composants. Le joint est plus fragile et le mélange avec d’autres alliages est déconseillé (non modélisé).'},
+ {n:'Fil trop gros',o:{wireD:1.5},note:'Avec Ø 1,5 mm on dépose plus de 10 mm³ en une seconde (excès) et l’alliage refroidit fortement le pad (chaleur latente de fusion).'},
+ {n:'Fil très fin',o:{wireD:.5},note:'Ø 0,5 mm : l’apport est lent, il faut tenir le fer plus longtemps ; le flux se consomme et la couche intermétallique épaissit.'},
+ {n:'Fil sans flux',o:{flux:'none'},note:'Sans flux, l’oxyde n’est pas éliminé : l’alliage ne mouille pas (boule froide), même si le pad est très chaud.'},
+ {n:'Carte ancienne',o:{pad:'old'},note:'Pad fortement oxydé : il faut plus de flux et de chaleur. Comparez avec le flux gel (« + flux gel »).'},
+ {n:'Station faible',o:{power:25,tip:'fine'},note:'Avec 25 W et une pointe fine, la température de la pointe s’effondre au contact : les pads 3 et 4 ne fondent jamais.'},
+ {n:'Grosse patte',o:{leadD:1.2},note:'Patte Ø 1,2 mm : le trou est plus grand (volume utile plus élevé) et la patte absorbe plus de chaleur.'}
+];
+const CTL={alloy:'#pAlloy',wireD:'#pWire',flux:'#pFlux',set:'#pSet',power:'#pPower',tip:'#pTip',leadD:'#pLead',pad:'#pPad'};
+function readCtl(){
+  S={alloy:$('#pAlloy').value,wireD:+$('#pWire').value,flux:$('#pFlux').value,set:+$('#pSet').value,power:+$('#pPower').value,tip:$('#pTip').value,leadD:+$('#pLead').value,pad:$('#pPad').value};
+}
+function writeCtl(){for(const k in CTL)$(CTL[k]).value=String(S[k])}
+const fm=(x,d)=>x.toFixed(d).replace('.',',');
+function applySettings(){
+  P=Phys.params(S);VR=Phys.vrange(P);
+  joints=[0,1,2,3].map(i=>Phys.newJoint(i,P));tip=Phys.newTip(P);dummy.T=P.set;hist.length=0;
+  $('#pSetV').textContent=S.set+' °C';
+  $('#alloyNote').innerHTML=`<b>${P.A.comp}</b> · fusion <b>${P.A.melt} °C</b> · θ de mouillage ≈ ${P.A.thc}° · ${P.A.note}`;
+  // jauge de volume : zones selon le volume du trou
+  const z=document.querySelectorAll('#volZones i');const w1=VR[0]/12*100,w2=(VR[1]-VR[0])/12*100;
+  z[0].style.width=w1+'%';z[1].style.width=w2+'%';z[2].style.width=(100-w1-w2)+'%';
+  const tk=document.querySelectorAll('#volTicks span');tk[0].style.left=(w1/2)+'%';tk[1].style.left=(w1+w2/2)+'%';tk[2].style.left=(w1+w2+(100-w1-w2)/2)+'%';
+  // visuels : fil, pointe, patte
+  const ww=3+S.wireD*9,wi=3+S.wireD*7.5;
+  const wl=document.querySelectorAll('#sWire line');wl[0].setAttribute('stroke-width',ww+1);wl[1].setAttribute('stroke-width',ww-2);
+  const il=document.querySelectorAll('#iWire line');il.forEach((l,k)=>l.setAttribute('stroke-width',k%2?wi-3:wi));
+  const tw={fine:4.5,cone:8,chisel:13}[S.tip];
+  $('#tipPoly').setAttribute('points',`0,0 74,${-tw} 74,${tw}`);$('#iTipPoly').setAttribute('points',`0,0 44,${-tw*.9} 44,${tw*.9}`);
+  const lw=8*S.leadD/.8;
+  E.forEach(e=>{e.leg.setAttribute('x',-lw/2);e.leg.setAttribute('width',lw);e.legTop.setAttribute('rx',lw/2)});
+  $('#iLead').setAttribute('x',320-lw/2);$('#iLead').setAttribute('width',lw);
+  // fenêtre de brasage estimée (fer tenu seul sur le pad)
+  let h='<tr><th>Pad</th><th>Fusion atteinte</th><th>Pad décollé si fer tenu</th></tr>';
+  [0,1,2,3].forEach(i=>{const e=Phys.estimate(i,P);
+    const c=e.tm==null?'kc':e.tm<=3?'okc':'wc';
+    h+=`<tr><td>${i+1} · ${Phys.CFG[i].n.toLowerCase()}</td><td class="${c}">${e.tm==null?'jamais (max '+Math.round(e.tmax)+' °C)':'après '+fm(e.tm,1)+' s'}</td><td>${e.td==null?'au-delà de 25 s':'après '+Math.round(e.td)+' s'}</td></tr>`});
+  $('#est').innerHTML=h;
+  showResult();updateChips();drawChart();
+}
+$('#params').addEventListener('change',e=>{if(e.target.matches('select')||e.target.matches('input')){readCtl();applySettings()}});
+$('#pSet').addEventListener('input',()=>{$('#pSetV').textContent=$('#pSet').value+' °C'});
+(function(){const pr=$('#presets');PRESETS.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p.n;b.onclick=()=>{S=Object.assign({},BASE,p.o);writeCtl();$('#presetNote').innerHTML='<b>'+p.n+'</b> : '+p.note;applySettings()};pr.appendChild(b)})})();
+writeCtl();applySettings();
+select(0);renderLog();drawChart();
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;frame(dt);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+window.__sim={joints:()=>joints,u,select,tip:()=>tip};
+})();
+
+</script>
+</body>
+</html>

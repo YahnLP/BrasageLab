@@ -1,0 +1,130 @@
+<section id="atelier">
+  <h2><span class="n">★</span>Atelier : simulateur de brasage</h2>
+  <p class="lead">Maintenez <b>C</b> pour poser le fer et <b>S</b> pour apporter l’alliage. L’aspect de la brasure sur le circuit n’est pas dessiné à la main : il résulte d’un modèle physique (chaleur, flux, oxyde, mouillage, couche intermétallique). Essayez les quatre pads : ils ne chauffent pas à la même vitesse.</p>
+  <div class="toolbar">
+    <button id="resetAll">↺ Tout réinitialiser</button>
+    <span class="score" id="score">Réussies : 0 / 4</span>
+  </div>
+  <details class="panel" id="params" open>
+    <summary>Paramètres de l’atelier : alliage, fil, fer, flux, pad</summary>
+    <div class="pgrid">
+      <label>Alliage<select id="pAlloy"><option value="sac">SAC305 (sans plomb)</option><option value="sac0307">SAC0307 (sans plomb éco)</option><option value="sncu">Sn99,3Cu0,7 (sans plomb éco)</option><option value="snpb">Sn63/Pb37 (au plomb)</option><option value="snbi">Sn42/Bi58 (basse température)</option></select></label>
+      <label>Diamètre du fil<select id="pWire"><option value="0.5">0,5 mm</option><option value="0.8">0,8 mm</option><option value="1">1,0 mm</option><option value="1.5">1,5 mm</option></select></label>
+      <label>Flux<select id="pFlux"><option value="core">âme en résine (fil standard)</option><option value="none">fil plein, sans flux</option><option value="gel">âme + flux gel sur le pad</option></select></label>
+      <label>Température de consigne <b id="pSetV">340 °C</b><input type="range" id="pSet" min="250" max="420" step="10" value="340"></label>
+      <label>Puissance de la station<select id="pPower"><option value="25">25 W (entrée de gamme)</option><option value="45">45 W</option><option value="80">80 W</option></select></label>
+      <label>Panne (pointe)<select id="pTip"><option value="fine">fine (1 mm)</option><option value="cone">conique (2 mm)</option><option value="chisel">burin (3,5 mm)</option></select></label>
+      <label>Patte du composant<select id="pLead"><option value="0.6">Ø 0,6 mm</option><option value="0.8">Ø 0,8 mm</option><option value="1.2">Ø 1,2 mm</option></select></label>
+      <label>État du pad<select id="pPad"><option value="new">neuf</option><option value="std">standard</option><option value="old">ancien, oxydé</option></select></label>
+    </div>
+    <p class="small" id="alloyNote" style="margin:8px 0 0"></p>
+    <div class="small muted" style="margin-top:10px"><b>Scénarios prêts à l’emploi</b> (chaque changement remet la carte à neuf)</div>
+    <div class="presets" id="presets"></div>
+    <p class="small" id="presetNote" style="margin:8px 0 0"></p>
+    <div class="small muted" style="margin-top:10px"><b>Fenêtre de brasage estimée</b> avec ces réglages (fer tenu seul sur chaque pad)</div>
+    <table class="est" id="est"></table>
+  </details>
+  <div class="stage simstage" id="simstage">
+    <svg id="scene" viewBox="0 0 700 400" role="img" aria-label="Carte électronique en perspective avec fer à braser et fil d’alliage">
+      <defs>
+        <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="0" cy="0" r="1" fill="#b9c3d1"/></pattern>
+        <linearGradient id="legg" x1="0" x2="1"><stop offset="0" stop-color="#8b97a1"/><stop offset=".5" stop-color="#eef2f5"/><stop offset="1" stop-color="#8b97a1"/></linearGradient>
+        <linearGradient id="tipg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset=".55" stop-color="#b8c2cc"/><stop offset="1" stop-color="#6b7683"/></linearGradient>
+        <linearGradient id="wireg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset=".5" stop-color="#c5ced6"/><stop offset="1" stop-color="#8793a0"/></linearGradient>
+        <radialGradient id="heatg"><stop offset="0" stop-color="#ff7a1a" stop-opacity=".95"/><stop offset=".5" stop-color="#ff7a1a" stop-opacity=".35"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        <clipPath id="clipI"><circle cx="590" cy="96" r="72"/></clipPath>
+        <pattern id="fr4" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#fff" stroke-opacity=".1" stroke-width="3"/></pattern>
+      </defs>
+      <rect width="700" height="400" fill="url(#dots)"/>
+      <g id="board"></g>
+      <g id="pads"></g>
+      <g id="sSmoke"></g>
+      <g id="sWire"><line x1="-270" y1="-188" x2="0" y2="0" stroke="#6b7683" stroke-width="11" stroke-linecap="round"/><line x1="-270" y1="-188" x2="0" y2="0" stroke="url(#wireg)" stroke-width="8" stroke-linecap="round"/></g>
+      <g id="sIron"><g transform="rotate(-55)">
+        <polygon points="0,0 74,-8 74,8" id="tipPoly" fill="url(#tipg)" stroke="#5b6672" stroke-width="1"/>
+        <rect x="74" y="-10" width="150" height="20" fill="url(#tipg)" stroke="#5b6672"/><rect x="104" y="-10" width="9" height="20" fill="#d97706"/>
+        <rect x="224" y="-17" width="220" height="34" rx="10" fill="#0b1f2e"/>
+      </g></g>
+      <g id="callouts"></g>
+      <line id="link" stroke="#1e293b" stroke-width="1.3" stroke-dasharray="3 4"/>
+      <g id="inset">
+        <circle cx="590" cy="96" r="72" fill="#eaf1f4"/>
+        <g clip-path="url(#clipI)">
+          <g transform="translate(590 96) scale(1.2) translate(-320 -222)">
+            <rect x="200" y="230" width="108" height="40" fill="#2f9e6f"/><rect x="332" y="230" width="108" height="40" fill="#2f9e6f"/>
+            <rect x="200" y="230" width="108" height="40" fill="url(#fr4)"/><rect x="332" y="230" width="108" height="40" fill="url(#fr4)"/>
+            <path id="iHole" d="" fill="#c5ced6"/>
+            <g id="iPads" fill="#c8793a"><path id="iPadL" d="M262 222 h46 v8 h-46 Z"/><path id="iPadR" d="M332 222 h46 v8 h-46 Z"/><rect x="262" y="270" width="46" height="8"/><rect x="332" y="270" width="46" height="8"/><rect x="306" y="222" width="2.5" height="56"/><rect x="331.5" y="222" width="2.5" height="56"/></g>
+            <ellipse id="iBurn" cx="368" cy="236" rx="30" ry="7" fill="#5a3a22" opacity="0"/>
+            <rect id="iLead" x="316" y="100" width="8" height="205" fill="url(#legg)"/>
+            <rect x="262" y="282" width="116" height="70" rx="5" fill="#334155"/>
+            <g id="iOx" fill="#7a4a26" opacity=".8"><rect x="316" y="100" width="8" height="122"/><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/></g>
+            <g fill="#ff4a1c"><g id="iHeatL" opacity="0"><rect x="316" y="100" width="8" height="122"/></g><g id="iHeatP" opacity="0"><rect x="262" y="222" width="46" height="8"/><rect x="332" y="222" width="46" height="8"/></g></g>
+            <path id="iGlow" d="" fill="#ff9a2e" filter="url(#glow)" opacity="0"/>
+            <path id="iSolP" d="" fill="#c5ced6" stroke="#8b97a1" stroke-width="1"/>
+            <path id="iImc" d="" fill="none" stroke="#7b5ea7" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+            <g id="iTip"><g transform="rotate(-35)"><polygon id="iTipPoly" points="0,0 44,-7 44,7" fill="url(#tipg)" stroke="#5b6672"/><rect x="44" y="-9" width="120" height="18" fill="url(#tipg)" stroke="#5b6672"/></g></g>
+            <g id="iWire"><line x1="-200" y1="-168" x2="0" y2="0" stroke="#6b7683" stroke-width="9" stroke-linecap="round"/><line x1="-200" y1="-168" x2="0" y2="0" stroke="url(#wireg)" stroke-width="6" stroke-linecap="round"/></g>
+          </g>
+        </g>
+        <circle cx="590" cy="96" r="72" fill="none" stroke="#1e293b" stroke-width="3"/>
+        <g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" font-weight="700"><rect x="535" y="172" width="110" height="18" rx="9" fill="#0b1f2e"/><text id="insetT" x="590" y="184.5" text-anchor="middle" fill="#5eead4">COUPE · PAD 1</text></g>
+      </g>
+    </svg>
+    <div class="hold simhold">
+          <button id="bIron" aria-label="Maintenir pour poser le fer"><kbd>C</kbd> Fer</button>
+          <button id="bWire" aria-label="Maintenir pour apporter l’alliage"><kbd>S</kbd> Alliage</button>
+          <button id="bShake" aria-label="Maintenir pour bouger la carte"><kbd>M</kbd> Bouger</button>
+            </div>
+    <div class="ov t"><b>BrasureLab · Fig. 03</b><span id="padTag">Pad 1 · pad standard</span></div>
+    <div class="ov h" id="hint"><i>CONSEIL</i><div id="hintT"></div></div>
+    <div class="ov s" id="stat">pad 1</div>
+  </div>
+
+  <div class="hud">
+    <div class="bay">
+      <h3><span>Étape 1 · Température</span><span class="badge b-cold" id="tBadge">froid</span></h3>
+      <div class="num" id="tNum">25<small>°C</small></div>
+      <div class="small muted" id="tSub">pad · patte · pointe</div>
+      <svg id="chart" viewBox="0 0 240 70" style="margin-top:8px;border:1px solid var(--line);border-radius:6px;background:#f8fafc" role="img" aria-label="Historique des températures"></svg>
+      <div class="small muted" style="margin-top:2px"><b style="color:#0f766e">━</b> pad &nbsp;<b style="color:#7c3aed">━</b> patte</div>
+    </div>
+    <div class="bay">
+      <h3><span>Étape 2 · Temps de contact</span><span class="badge b-idle" id="cBadge">—</span></h3>
+      <div class="num" id="cNum">0.0<small>s</small></div>
+      <div class="small muted">idéal 2 à 3 s · maximum 10 s</div>
+      <div class="zones" id="zones"><i style="width:16.67%;background:#fde7b5"></i><i style="width:8.33%;background:#84cc16"></i><i style="width:16.67%;background:#d9f0a0"></i><i style="width:41.67%;background:#f6c667"></i><i style="width:16.67%;background:#f7a39a"></i><div class="mk" id="cMk"></div></div>
+      <div class="ticks"><span style="left:0%">0</span><span style="left:16.67%">2</span><span style="left:25%">3</span><span style="left:41.67%">5</span><span style="left:83.33%">10</span></div>
+      <div class="small muted">secondes avec le fer sur le pad</div>
+      <div class="small" style="margin-top:8px"><b>Pointe</b> : <span id="tipQ">étamée 100 %</span></div>
+      <div class="row" style="margin-top:4px"><button id="bClean" class="small">🧽 Éponge + étamage</button></div>
+    </div>
+    <div class="bay">
+      <h3><span>Étape 3 · Commandes</span><span class="badge b-idle" id="qBadge">vide</span></h3>
+      <div class="small muted" style="margin-bottom:2px">Volume d’alliage déposé</div>
+      <div class="zones" id="volZones" style="margin-top:6px"><i style="width:16.7%;background:#f6c667"></i><i style="width:30%;background:#84cc16"></i><i style="width:53.3%;background:#f7a39a"></i><div class="mk" id="qMk"></div></div>
+      <div class="ticks" id="volTicks"><span style="left:8%">peu</span><span style="left:32%">juste</span><span style="left:73%">trop</span></div>
+      <div class="small muted" id="fluxL">flux actif : 0 %</div>
+    </div>
+    <div class="bay">
+      <h3><span>Étape 4 · Résultat</span><span class="badge b-idle" id="rBadge">en attente</span></h3>
+      <div class="rname" id="rName">En attente</div>
+      <div class="rdesc" id="rDesc">Choisissez un pad, chauffez-le puis apportez l’alliage.</div>
+      <div class="kv" id="meas"></div>
+      <div class="pads" id="padChips" style="margin-top:8px"></div>
+      <div class="row"><button id="resetPad">↺ Refaire ce pad</button></div>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h2>Journal des essais</h2><div class="log" id="log"><span class="muted">Aucun essai pour le moment.</span></div></div>
+    <div class="panel"><h2>Ce que simule le modèle</h2>
+      <ul class="k small"><li>Chaleur : pointe régulée (elle « chute » au contact), pad, patte, plan de masse.</li>
+      <li>Flux : apporté par le fil, actif au-dessus de ≈ 120 °C, consommé par la chaleur (≈ 10 s à 300 °C).</li>
+      <li>Oxyde : retiré par le flux, qui revient si le flux est épuisé et que ça surchauffe.</li>
+      <li>Mouillage : angle de contact, remplissage du trou par capillarité, couche intermétallique.</li>
+      <li>Pad : se dégrade avec la température et le temps ; l’alliage se fige en quelques secondes.</li></ul>
+      <p class="small muted" style="margin:6px 0 0">Touches <b>1</b> à <b>4</b> ou toucher un pad pour le choisir. Modèle simplifié à but pédagogique : valeurs à confronter aux consignes de l’atelier.</p>
+    </div>
+  </div>
+</section>
