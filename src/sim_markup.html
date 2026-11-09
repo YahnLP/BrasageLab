@@ -24,34 +24,63 @@
     <div class="small muted" style="margin-top:10px"><b>Fenêtre de brasage estimée</b> avec ces réglages (fer tenu seul sur chaque pad)</div>
     <table class="est" id="est"></table>
   </details>
+  <div class="simwrap">
   <div class="stage simstage" id="simstage">
-    <svg id="scene" viewBox="0 0 700 400" role="img" aria-label="Carte électronique en perspective avec fer à braser et fil d’alliage">
+    <svg id="scene" viewBox="0 0 760 500" role="img" aria-label="Circuit imprimé tenu par un support mains libres, pastilles, pistes et pattes qui dépassent, fer à braser et fil d’alliage">
       <defs>
-        <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="0" cy="0" r="1" fill="#b9c3d1"/></pattern>
-        <linearGradient id="legg" x1="0" x2="1"><stop offset="0" stop-color="#8b97a1"/><stop offset=".5" stop-color="#eef2f5"/><stop offset="1" stop-color="#8b97a1"/></linearGradient>
-        <linearGradient id="tipg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset=".55" stop-color="#b8c2cc"/><stop offset="1" stop-color="#6b7683"/></linearGradient>
-        <linearGradient id="wireg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset=".5" stop-color="#c5ced6"/><stop offset="1" stop-color="#8793a0"/></linearGradient>
+        <linearGradient id="legg2" x1="0" x2="1"><stop offset="0" stop-color="#8a949e"/><stop offset=".45" stop-color="#eef1f4"/><stop offset="1" stop-color="#7d8791"/></linearGradient>
+        <linearGradient id="tipg2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".6" stop-color="#bcc5cd"/><stop offset="1" stop-color="#79848f"/></linearGradient>
+        <linearGradient id="sleeve" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e5e9ec"/><stop offset=".5" stop-color="#aab3bb"/><stop offset="1" stop-color="#6f7983"/></linearGradient>
+        <linearGradient id="maskg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#1f8057"/><stop offset="1" stop-color="#15603f"/></linearGradient>
+        <linearGradient id="solg" x1="0" x2="1"><stop offset="0" stop-color="#aab3bb"/><stop offset=".4" stop-color="#f1f4f6"/><stop offset="1" stop-color="#9aa4ad"/></linearGradient>
         <radialGradient id="heatg"><stop offset="0" stop-color="#ff7a1a" stop-opacity=".95"/><stop offset=".5" stop-color="#ff7a1a" stop-opacity=".35"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="reelg"><stop offset="0" stop-color="#eef1f4"/><stop offset="1" stop-color="#a9b2ba"/></radialGradient>
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
-        <clipPath id="clipI"><circle cx="590" cy="96" r="72"/></clipPath>
         <pattern id="fr4" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#fff" stroke-opacity=".1" stroke-width="3"/></pattern>
+        <pattern id="bench" width="26" height="26" patternUnits="userSpaceOnUse"><rect width="26" height="26" fill="#f1f4f8"/><path d="M26 0H0V26" fill="none" stroke="#e3e8ef" stroke-width="1"/></pattern>
       </defs>
-      <rect width="700" height="400" fill="url(#dots)"/>
+      <rect width="760" height="500" fill="url(#bench)"/>
       <g id="board"></g>
       <g id="pads"></g>
       <g id="sSmoke"></g>
-      <g id="sWire"><line x1="-270" y1="-188" x2="0" y2="0" stroke="#6b7683" stroke-width="11" stroke-linecap="round"/><line x1="-270" y1="-188" x2="0" y2="0" stroke="url(#wireg)" stroke-width="8" stroke-linecap="round"/></g>
-      <g id="sIron"><g transform="rotate(-55)">
-        <polygon points="0,0 74,-8 74,8" id="tipPoly" fill="url(#tipg)" stroke="#5b6672" stroke-width="1"/>
-        <rect x="74" y="-10" width="150" height="20" fill="url(#tipg)" stroke="#5b6672"/><rect x="104" y="-10" width="9" height="20" fill="#d97706"/>
-        <rect x="224" y="-17" width="220" height="34" rx="10" fill="#0b1f2e"/>
+      <g id="reel">
+        <circle cx="70" cy="64" r="46" fill="url(#reelg)" stroke="#8f98a1" stroke-width="2"/>
+        <g fill="none" stroke="#9aa3ab" stroke-width="3"><circle cx="70" cy="64" r="38"/><circle cx="70" cy="64" r="32"/><circle cx="70" cy="64" r="26"/><circle cx="70" cy="64" r="20"/></g>
+        <circle cx="70" cy="64" r="9" fill="#5f6a75"/><circle cx="70" cy="64" r="3.5" fill="#cfd5da"/>
+        <text x="70" y="126" text-anchor="middle" font-size="11" font-weight="700" font-family="ui-monospace,Menlo,Consolas,monospace" fill="#64748b">BOBINE</text>
+      </g>
+      <path id="wireOut" d="" fill="none" stroke="#6b7683" stroke-width="9" stroke-linecap="round"/>
+      <path id="wireIn" d="" fill="none" stroke="#dde2e7" stroke-width="6" stroke-linecap="round"/>
+      <g id="sIron"><g transform="rotate(-40)">
+        <polygon id="tipPoly" points="0,0 60,-6 60,6" fill="url(#tipg2)" stroke="#6a7480" stroke-width="1"/>
+        <rect id="tipShank" x="58" y="-7" width="40" height="14" fill="#b9733a"/>
+        <rect x="96" y="-11" width="16" height="22" rx="3" fill="#8f98a1" stroke="#6a7480"/>
+        <rect x="112" y="-9" width="92" height="18" fill="url(#sleeve)" stroke="#6a7480"/>
+        <g fill="#4b535c"><rect x="124" y="-3" width="14" height="6" rx="3"/><rect x="146" y="-3" width="14" height="6" rx="3"/><rect x="168" y="-3" width="14" height="6" rx="3"/></g>
+        <path d="M204 -15 L336 -19 Q348 -19 348 -9 L348 9 Q348 19 336 19 L204 15 Z" fill="#30333a"/>
+        <rect x="204" y="-15.5" width="16" height="31" fill="#f08a24"/>
+        <g fill="#454951"><rect x="262" y="-17" width="5" height="34" rx="2"/><rect x="276" y="-17.5" width="5" height="35" rx="2"/><rect x="290" y="-18" width="5" height="36" rx="2"/></g>
+        <path d="M348 0 q34 0 44 24 t44 24" fill="none" stroke="#1d1f23" stroke-width="5" stroke-linecap="round"/>
       </g></g>
       <g id="callouts"></g>
-      <line id="link" stroke="#1e293b" stroke-width="1.3" stroke-dasharray="3 4"/>
-      <g id="inset">
-        <circle cx="590" cy="96" r="72" fill="#eaf1f4"/>
-        <g clip-path="url(#clipI)">
-          <g transform="translate(590 96) scale(1.2) translate(-320 -222)">
+    </svg>
+    <div class="hold simhold">
+          <button id="bIron" aria-label="Maintenir pour poser le fer"><kbd>C</kbd> Fer</button>
+          <button id="bWire" aria-label="Maintenir pour apporter l’alliage"><kbd>S</kbd> Alliage</button>
+          <button id="bShake" aria-label="Maintenir pour bouger la carte"><kbd>M</kbd> Bouger</button>
+            </div>
+    <div class="ov t"><b>BrasureLab · Fig. 03</b><span id="padTag">Pad 1 · pad standard</span></div>
+    <div class="ov h" id="hint"><i>CONSEIL</i><div id="hintT"></div></div>
+    <div class="ov s" id="stat">pad 1</div>
+  </div>
+  <div class="panel cutcard">
+    <h3>Coupe du joint · pad <b id="cutPad">1</b></h3>
+    <svg id="cut" viewBox="0 0 300 320" role="img" aria-label="Coupe du trou métallisé : brasure, pad et patte">
+      <defs><clipPath id="clipC"><rect width="300" height="320" rx="12"/></clipPath></defs>
+      <rect width="300" height="320" rx="12" fill="#eaf1f4"/>
+      <g clip-path="url(#clipC)">
+        <g stroke="#d5dfe5" stroke-width="1"><path d="M0 40H300M0 80H300M0 120H300M0 160H300M0 200H300M0 240H300M0 280H300M40 0V320M80 0V320M120 0V320M160 0V320M200 0V320M240 0V320M280 0V320"/></g>
+        <g transform="translate(150 190) scale(1.3) translate(-320 -200)">
             <rect x="200" y="230" width="108" height="40" fill="#2f9e6f"/><rect x="332" y="230" width="108" height="40" fill="#2f9e6f"/>
             <rect x="200" y="230" width="108" height="40" fill="url(#fr4)"/><rect x="332" y="230" width="108" height="40" fill="url(#fr4)"/>
             <path id="iHole" d="" fill="#c5ced6"/>
@@ -64,22 +93,14 @@
             <path id="iGlow" d="" fill="#ff9a2e" filter="url(#glow)" opacity="0"/>
             <path id="iSolP" d="" fill="#c5ced6" stroke="#8b97a1" stroke-width="1"/>
             <path id="iImc" d="" fill="none" stroke="#7b5ea7" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
-            <g id="iTip"><g transform="rotate(-35)"><polygon id="iTipPoly" points="0,0 44,-7 44,7" fill="url(#tipg)" stroke="#5b6672"/><rect x="44" y="-9" width="120" height="18" fill="url(#tipg)" stroke="#5b6672"/></g></g>
-            <g id="iWire"><line x1="-200" y1="-168" x2="0" y2="0" stroke="#6b7683" stroke-width="9" stroke-linecap="round"/><line x1="-200" y1="-168" x2="0" y2="0" stroke="url(#wireg)" stroke-width="6" stroke-linecap="round"/></g>
+            <g id="iTip"><g transform="rotate(-145)"><polygon id="iTipPoly" points="0,0 44,-7 44,7" fill="url(#tipg)" stroke="#5b6672"/><rect x="44" y="-9" width="120" height="18" fill="url(#tipg)" stroke="#5b6672"/></g></g>
+            <g id="iWire"><line x1="200" y1="-168" x2="0" y2="0" stroke="#6b7683" stroke-width="9" stroke-linecap="round"/><line x1="200" y1="-168" x2="0" y2="0" stroke="url(#wireg)" stroke-width="6" stroke-linecap="round"/></g>
           </g>
-        </g>
-        <circle cx="590" cy="96" r="72" fill="none" stroke="#1e293b" stroke-width="3"/>
-        <g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" font-weight="700"><rect x="535" y="172" width="110" height="18" rx="9" fill="#0b1f2e"/><text id="insetT" x="590" y="184.5" text-anchor="middle" fill="#5eead4">COUPE · PAD 1</text></g>
       </g>
+      <rect width="300" height="320" rx="12" fill="none" stroke="#1e293b" stroke-width="2"/>
     </svg>
-    <div class="hold simhold">
-          <button id="bIron" aria-label="Maintenir pour poser le fer"><kbd>C</kbd> Fer</button>
-          <button id="bWire" aria-label="Maintenir pour apporter l’alliage"><kbd>S</kbd> Alliage</button>
-          <button id="bShake" aria-label="Maintenir pour bouger la carte"><kbd>M</kbd> Bouger</button>
-            </div>
-    <div class="ov t"><b>BrasureLab · Fig. 03</b><span id="padTag">Pad 1 · pad standard</span></div>
-    <div class="ov h" id="hint"><i>CONSEIL</i><div id="hintT"></div></div>
-    <div class="ov s" id="stat">pad 1</div>
+    <p class="small muted" style="margin:6px 0 0">Cuivre en orange, couche intermétallique en violet, oxyde en brun, alliage en gris (orange quand il est liquide).</p>
+  </div>
   </div>
 
   <div class="hud">

@@ -50,3 +50,11 @@ node tests/scenarios.js   # compare les scénarios (fenêtre de chauffe, verdict
 Modèle simplifié à but pédagogique : les constantes thermiques et les seuils sont des ordres de grandeur réglés à la main, non validés par des mesures. Les valeurs (temps de contact idéal, volumes, angles) sont à confronter aux consignes de l'atelier et aux fiches fabricant.
 
 Créé par Yahn LE PRETTRE - Formaxion Landes.
+
+
+## Organisation en deux pages
+
+- `index.html` : le cours (principe, geste, flux, échelle micro, défauts, CMS, sécurité, quiz).
+- `simulateur.html` : le simulateur sur une page à part. La carte est représentée avec ses pistes, ses pastilles et les pattes qui dépassent, tenue par un support mains libres. Une carte de coupe distincte montre le joint en section.
+- Les deux pages sont reliées par l'onglet de navigation Cours / Simulateur.
+- Régénération : `python3 build.py` (sources dans `src/`).

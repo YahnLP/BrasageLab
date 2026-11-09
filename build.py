@@ -56,58 +56,67 @@ table.est{border-collapse:collapse;width:100%;font:12.5px var(--mono);margin-top
 table.est .okc{color:var(--ok);font-weight:700}table.est .wc{color:var(--warn);font-weight:700}table.est .kc{color:var(--err);font-weight:700}
 .hold{flex-wrap:wrap}.hold button{min-width:84px;padding:8px 6px;font-size:13px;min-height:48px}
 """
-css=root+oldcss+simcss+extra
+css=root+oldcss+simcss+extra+"""
+nav.tabs2 a.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:700}
+nav.tabs2 a{font-size:14.5px;padding:12px 16px}
+.cta{border-left:4px solid var(--brand)}.btn{display:inline-block;background:var(--brand);color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:8px}
+.simwrap{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:12px;align-items:start;margin-bottom:10px}
+.cutcard h3{margin:0 0 6px;font-size:14px}.cutcard svg{display:block;width:100%;height:auto}
+@media(max-width:820px){.simwrap{grid-template-columns:1fr}.cutcard svg{max-width:340px;margin:0 auto}}
+.simstage .ov{position:static;max-width:none;margin:6px 8px;box-shadow:none}.simstage .ov.s{display:none}.simstage .ov.h{margin-top:0}
+"""
 
-top="""<header id="top">
-  <div class="brand"><span class="logo" aria-hidden="true">⏚</span> BrasureLab <small>Cours et simulateur de brasage · Bac Pro CIEL</small><span class="credit">Créé par Yahn LE PRETTRE - Formaxion Landes</span></div>
+import os,sys
+# liens entre les deux pages : relatifs dans le dépôt, absolus pour les artefacts
+COURS=os.environ.get('COURS_URL','index.html');SIMU=os.environ.get('SIM_URL','simulateur.html')
+OUT=os.environ.get('OUT_SUFFIX','')
+
+def top(active):
+    a=lambda h,t,k:f'<a href="{h}"'+(' class="on" aria-current="page"' if k==active else '')+f'>{t}</a>'
+    return f"""<header id="top">
+  <div class="brand"><span class="logo" aria-hidden="true">⏚</span> BrasageLab <small>Brasage tendre en électronique · Bac Pro CIEL</small><span class="credit">Créé par Yahn LE PRETTRE - Formaxion Landes</span></div>
 </header>
 <nav class="tabs2"><div class="wrap">
-  <a href="#principe">Principe</a><a href="#geste">Le geste</a><a href="#atelier">Atelier (simulateur)</a><a href="#flux">Le flux</a><a href="#imc">Échelle micro</a><a href="#defauts">Défauts</a><a href="#refusion">CMS</a><a href="#securite">Sécurité</a><a href="#quiz">Quiz</a>
+  {a(COURS,'Cours','cours')}{a(SIMU,'Simulateur','sim')}
 </div></nav>"""
 
-# ordre des sections : principe, geste, atelier, flux, imc, defauts, refusion, securite, quiz
 parts=re.split(r'(?=<section id=")',oldmain)
 secs={re.match(r'<section id="(\w+)"',p).group(1):p for p in parts if p.startswith('<section')}
-order=['principe','geste','ATELIER','flux','imc','defauts','refusion','securite','quiz']
-body=''
-for o in order:
-    body+= simhtml if o=='ATELIER' else secs[o]
-# numérotation
+order=['principe','geste','flux','imc','defauts','refusion','securite','quiz']
+body=''.join(secs[o] for o in order)
 c=[0]
 def num(m):
     c[0]+=1;return f'<span class="n">{c[0]}</span>'
 body=re.sub(r'<span class="n">[^<]*</span>',num,body)
 body=fonts(body)
+body+=f'<section><div class="card cta"><b>Passez à la pratique</b><div class="small">Le simulateur reproduit la physique d’un brasage : choisissez l’alliage, le diamètre du fil et la température, puis observez le résultat sur la carte.</div><p><a class="btn" href="{SIMU}">Ouvrir le simulateur →</a></p></div></section>'
+simbody=fonts(simhtml)
 
-html=f"""<!DOCTYPE html>
+def page(title,kind,main,scripts):
+    return f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BrasureLab – Cours et simulateur de brasage · Bac Pro CIEL</title>
+<title>{title}</title>
 <meta name="author" content="Yahn LE PRETTRE - Formaxion Landes">
 <style>{css}</style>
 </head>
 <body>
-{top}
+{top(kind)}
 <main class="wrap">
-{body}
+{main}
 </main>
-<footer><div class="wrap">BrasureLab · support pédagogique animé · modèle simplifié (valeurs indicatives, à confronter aux consignes de l’atelier et aux fiches fabricant).</div></footer>
-<script>
-{model}
-</script>
-<script>
-(function(){{
-{oldjs}
-}})();
-</script>
-<script>
-{simjs}
-</script>
+<footer><div class="wrap">BrasageLab · support pédagogique animé · modèle simplifié (valeurs indicatives, à confronter aux consignes de l’atelier et aux fiches fabricant).</div></footer>
+{scripts}
 </body>
 </html>
 """
-import os
-open(os.path.join(HERE,'index.html'),'w',encoding='utf-8').write(html)
-print(len(html))
+cours=page('BrasageLab – Cours de brasage · Bac Pro CIEL','cours',body,f"<script>\n(function(){{\n{oldjs}\n}})();\n</script>")
+sim=page('BrasageLab – Simulateur de brasage · Bac Pro CIEL','sim',simbody,f"<script>\n{model}\n</script>\n<script>\n{simjs}\n</script>")
+cn,sn=('index','simulateur') if not OUT else ('cours_'+OUT,'simulateur_'+OUT)
+d=os.path.join(HERE,'dist') if OUT else HERE
+os.makedirs(d,exist_ok=True)
+open(os.path.join(d,cn+'.html'),'w',encoding='utf-8').write(cours)
+open(os.path.join(d,sn+'.html'),'w',encoding='utf-8').write(sim)
+print(len(cours),len(sim))
