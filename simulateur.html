@@ -668,7 +668,7 @@ function coach(i,key){
       if(S.power<80){set.power=80;fix.push('Une station plus puissante (80 W) limite la chute de température de la pointe au contact.')}
     }else{why.push(`Le ${padN} a plafonné à ${Math.round(j.tmax)} °C pour une fusion à ${L} °C.`);
       fix.push(`Posez le fer (bouton Fer), laissez-le en place environ ${fs(e.tm+.5)} s, puis activez Alliage : c’est le temps nécessaire pour ce pad.`);
-      if(big)fix.push('Ce pad dissipe beaucoup de chaleur : posez la panne sur le pad ET la patte, et chauffez plus longtemps.');}
+      if(big)fix.push('Ce pad dissipe beaucoup de chaleur : il faut chauffer plus longtemps que sur les pads 1 et 2. Dans le simulateur la panne touche déjà le pad et la patte ; sur une vraie carte, on la pose à leur jonction, côté pad.');}
   };
   switch(key){
   case 'cold':
@@ -678,7 +678,7 @@ function coach(i,key){
     }
     if(j.tmax<L+5)hotNeeded();
     cleanTip();
-    if(!fix.length){why.push('L’alliage est arrivé avant que le pad ait atteint la fusion : il se fige en boule au lieu de mouiller.');fix.push(`Posez d’abord le fer (bouton Fer), attendez environ ${fs((e.tm||2)+.5)} s (le pad doit dépasser ${L} °C), puis apportez l’alliage entre la panne et la patte.`);fix.push('Observez la température du pad : l’alliage ne doit toucher que lorsque le badge indique « fond ».')}
+    if(!fix.length){why.push('L’alliage est arrivé avant que le pad ait atteint la fusion : il se fige en boule au lieu de mouiller.');fix.push(`Posez d’abord le fer (bouton Fer), attendez environ ${fs((e.tm||2)+.5)} s (le pad doit dépasser ${L} °C), puis activez Alliage. Sur une vraie carte, le fil se pose à la jonction pad / patte, du côté opposé à la panne, jamais sur la panne.`);fix.push('Observez la température du pad : l’alliage ne doit toucher que lorsque le badge indique « fond ».')}
     break;
   case 'dry':
     why.push(`Mouillage partiel : angle ${Math.round(m.theta)}°, trou rempli à ${Math.round(m.fill*100)} %, couche intermétallique ${fs(m.imc)} µm.`);
