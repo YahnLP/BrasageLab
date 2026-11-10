@@ -210,6 +210,37 @@ nav.tabs2 a{font-size:14.5px;padding:12px 16px}
   <h2><span class="n">2</span>Le geste, étape par étape</h2>
   <p class="lead">Coupe d’un trou métallisé traversé par la patte d’un composant. Utilisez <b>Suivant</b> ou <b>Lecture auto</b> et regardez la température du pad et le comportement de l’alliage.</p>
 
+  <div class="card" style="margin:0 0 14px">
+    <b>Où placer la panne et le fil</b>
+    <svg viewBox="0 0 680 290" style="width:100%;height:auto;display:block;margin-top:8px" role="img" aria-label="Schéma : la panne touche la jonction pad et patte d’un côté, le fil d’alliage est apporté de l’autre côté de la jonction">
+      <rect width="680" height="290" rx="10" fill="#f7f9fc"/>
+      <rect x="40" y="200" width="600" height="40" fill="#2f8f63"/>
+      <rect x="40" y="195" width="600" height="6" fill="none"/>
+      <g fill="#c8793a"><rect x="250" y="192" width="180" height="8"/><rect x="250" y="240" width="180" height="8"/></g>
+      <rect x="336" y="60" width="8" height="180" fill="#cfd5da" stroke="#8b97a1"/>
+      <text x="340" y="50" font-size="12" fill="#475569" font-family="system-ui,sans-serif" text-anchor="middle">patte du composant</text>
+      <text x="60" y="262" font-size="12" fill="#475569" font-family="system-ui,sans-serif">circuit imprimé</text>
+      <text x="262" y="184" font-size="12" fill="#a9552b" font-family="system-ui,sans-serif" text-anchor="middle">pad de cuivre</text>
+      <!-- panne -->
+      <g transform="translate(332 190) rotate(-140)"><polygon points="0,0 70,-7 70,7" fill="#dfe4e8" stroke="#6a7480"/><rect x="68" y="-9" width="120" height="18" fill="#8f98a1" stroke="#6a7480"/></g>
+      <text x="60" y="60" font-size="14" font-weight="700" fill="#1e293b" font-family="system-ui,sans-serif">① Panne</text>
+      <text x="60" y="78" font-size="12" fill="#475569" font-family="system-ui,sans-serif">sur le pad ET la patte</text>
+      <!-- fil -->
+      <path d="M560 70 Q470 110 352 188" fill="none" stroke="#6b7683" stroke-width="9" stroke-linecap="round"/>
+      <path d="M560 70 Q470 110 352 188" fill="none" stroke="#dde2e7" stroke-width="6" stroke-linecap="round"/>
+      <text x="470" y="52" font-size="14" font-weight="700" fill="#1e293b" font-family="system-ui,sans-serif">② Fil d’alliage</text>
+      <text x="470" y="68" font-size="12" fill="#475569" font-family="system-ui,sans-serif">à la jonction, côté opposé</text>
+      <circle cx="340" cy="192" r="15" fill="none" stroke="#e5472b" stroke-width="2.5" stroke-dasharray="4 3"/>
+      <text x="364" y="222" font-size="12" font-weight="700" fill="#e5472b" font-family="system-ui,sans-serif">jonction</text>
+    </svg>
+    <ol class="small" style="margin:8px 0 0;padding-left:20px;line-height:1.5">
+      <li><b>Chauffer</b> : la panne touche le pad et la patte en même temps, pour que les deux montent en température ensemble (2 à 3 s en général).</li>
+      <li><b>Apporter</b> : le fil touche la jonction du côté opposé à la panne. Il fond au contact du métal chaud, et le flux de son âme nettoie les surfaces.</li>
+      <li><b>Retirer</b> : d’abord le fil, puis la panne, quand le trou est rempli et le cordon concave. Ne plus toucher la carte jusqu’à solidification.</li>
+    </ol>
+    <div class="small" style="margin-top:6px">Si le fil fond sur la panne seulement, l’alliage coule sans que le pad ait atteint la fusion : c’est la boule froide.</div>
+  </div>
+
   <div class="stage">
     <svg id="main" viewBox="0 0 680 400" role="img" aria-label="Coupe animée d’une brasure sur trou métallisé">
       <defs>
