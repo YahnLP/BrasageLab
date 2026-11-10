@@ -142,6 +142,8 @@ footer{color:var(--muted);font-size:12px;padding:6px 12px 24px;text-align:center
 .coach button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
 @media(max-width:700px){.coach .cgrid{grid-template-columns:1fr}}
 
+.simstage .ov.mode{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ov.mode button{font-size:12.5px;padding:6px 10px;pointer-events:auto}
+
 body{font-size:15px}
 .wrap{max-width:1100px}
 nav.tabs2{position:sticky;top:0;z-index:30;background:#ffffffee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
@@ -258,6 +260,7 @@ nav.tabs2 a{font-size:14.5px;padding:12px 16px}
           <button id="bWire" aria-label="Maintenir pour apporter l’alliage"><kbd>S</kbd> Alliage</button>
           <button id="bShake" aria-label="Maintenir pour bouger la carte"><kbd>M</kbd> Bouger</button>
             </div>
+    <div class="ov mode"><button id="bLatch" aria-pressed="false"></button><div class="small muted" id="holdHelp"></div></div>
     <div class="ov t"><b>BrasureLab · Fig. 03</b><span id="padTag">Pad 1 · pad standard</span></div>
     <div class="ov h" id="hint"><i>CONSEIL</i><div id="hintT"></div></div>
     <div class="ov s" id="stat">pad 1</div>
@@ -651,7 +654,7 @@ const fs=(x,d)=>x.toFixed(d===undefined?1:d).replace('.',',');
 function coach(i,key){
   const j=joints[i],m=Phys.measures(j,P),e=Phys.estimate(i,P),L=liq(),why=[],fix=[],set={};
   const vr=VR,mid=(vr[0]+vr[1])/2,rate=P.vfeed,tq=(j.dg&&j.dg.tipQ)||tip.Q;
-  const big=i>=2,padN=Phys.CFG[i].n.toLowerCase();
+  const big=i>=2,padN=`pad ${i+1} (${Phys.CFG[i].n.toLowerCase()})`;
   const raise=d=>{set.set=Math.min(420,S.set+d)};
   const lower=d=>{set.set=Math.max(250,S.set-d)};
   const cleanTip=()=>{if(tq<.6){why.push(`La panne était ${tq>.4?'ternie':'oxydée'} (${Math.round(tq*100)} %) : elle transmet mal la chaleur.`);fix.push('Nettoyez et étamez la panne (bouton « Éponge + étamage ») avant chaque joint.')}};
@@ -662,7 +665,7 @@ function coach(i,key){
       if(S.tip!=='chisel'){set.tip='chisel';fix.push('Prenez une panne plus large (burin) : plus de surface de contact, plus de chaleur transmise.')}
       if(S.power<80){set.power=80;fix.push('Une station plus puissante (80 W) limite la chute de température de la pointe au contact.')}
     }else{why.push(`Le ${padN} a plafonné à ${Math.round(j.tmax)} °C pour une fusion à ${L} °C.`);
-      fix.push(`Laissez le fer en place environ ${fs(e.tm+.5)} s avant d’apporter l’alliage : c’est le temps nécessaire pour ce pad.`);
+      fix.push(`Posez le fer (bouton Fer), laissez-le en place environ ${fs(e.tm+.5)} s, puis activez Alliage : c’est le temps nécessaire pour ce pad.`);
       if(big)fix.push('Ce pad dissipe beaucoup de chaleur : posez la panne sur le pad ET la patte, et chauffez plus longtemps.');}
   };
   switch(key){
@@ -673,7 +676,7 @@ function coach(i,key){
     }
     if(j.tmax<L+5)hotNeeded();
     cleanTip();
-    if(!fix.length){why.push('L’alliage est arrivé avant que le pad ait atteint la fusion : il se fige en boule au lieu de mouiller.');fix.push(`Posez d’abord le fer, attendez environ ${fs((e.tm||2)+.5)} s (le pad doit dépasser ${L} °C), puis apportez l’alliage entre la panne et la patte.`);fix.push('Observez la température du pad : l’alliage ne doit toucher que lorsque le badge indique « fond ».')}
+    if(!fix.length){why.push('L’alliage est arrivé avant que le pad ait atteint la fusion : il se fige en boule au lieu de mouiller.');fix.push(`Posez d’abord le fer (bouton Fer), attendez environ ${fs((e.tm||2)+.5)} s (le pad doit dépasser ${L} °C), puis apportez l’alliage entre la panne et la patte.`);fix.push('Observez la température du pad : l’alliage ne doit toucher que lorsque le badge indique « fond ».')}
     break;
   case 'dry':
     why.push(`Mouillage partiel : angle ${Math.round(m.theta)}°, trou rempli à ${Math.round(m.fill*100)} %, couche intermétallique ${fs(m.imc)} µm.`);
@@ -761,22 +764,29 @@ function autoHint(){
   if(u.wire&&j.V>0){hintSet('Le flux du fil nettoie l’oxyde et l’alliage coule par capillarité.','');return}
   if(u.iron&&tip.Q<.55&&Tj<L){hintSet('Pointe oxydée : mauvais transfert de chaleur. Utilisez « Éponge + étamage ».','warn');return}
   if(u.iron&&Tj<L){hintSet(`Chauffe pad ET patte : l’alliage ne mouille qu’au-dessus de ${L} °C.`+(j.i===3?' Ce pad est relié au plan de masse : il chauffe lentement.':''),'');return}
-  if(u.iron&&Tj>=L&&j.V===0){hintSet('Pad assez chaud : maintenez S et touchez le pad avec le fil, pas la pointe.','good');return}
+  if(u.iron&&Tj>=L&&j.V===0){hintSet('Pad assez chaud : apportez l’alliage (bouton Alliage) et touchez le pad avec le fil, pas la pointe.','good');return}
   if(u.iron&&j.V>0){hintSet('Quand le volume est bon, relâchez S puis retirez le fer.','');return}
   if(j.V>0&&Tj>=L){hintSet('Ne bougez pas : l’alliage se fige sous '+L+' °C.','');return}
   hintSet('Maintenez C pour poser le fer sur le pad '+(sel+1)+'.','');
 }
 
 /* entrées */
+let latch=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches);
 function holdBtn(id,key){
   const b=$(id);
-  const on=e=>{e.preventDefault();u[key]=true;b.classList.add('on');try{b.setPointerCapture(e.pointerId)}catch(_){}};
-  const off=()=>{u[key]=false;b.classList.remove('on')};
+  const on=e=>{e.preventDefault();
+    if(latch){u[key]=!u[key];b.classList.toggle('on',u[key]);return}
+    u[key]=true;b.classList.add('on');try{b.setPointerCapture(e.pointerId)}catch(_){}};
+  const off=()=>{if(latch)return;u[key]=false;b.classList.remove('on')};
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
   b.addEventListener('contextmenu',e=>e.preventDefault());
 }
-holdBtn('#bIron','iron');holdBtn('#bWire','wire');holdBtn('#bShake','shake');
+function setLatch(v){latch=v;for(const k in KEYS){u[KEYS[k][0]]=false;$(KEYS[k][1]).classList.remove('on')}
+  const t=$('#bLatch');t.setAttribute('aria-pressed',v);t.textContent=v?'Mode : appui = marche / arrêt':'Mode : maintenir appuyé';
+  $('#holdHelp').textContent=v?'Touchez Fer pour poser le fer, touchez-le encore pour le retirer. Même chose pour Alliage et Bouger. Vous pouvez avoir Fer et Alliage actifs en même temps.':'Maintenez le bouton enfoncé (ou la touche C, S, M) : le fer ou l’alliage reste en place tant que vous appuyez.'}
 const KEYS={c:['iron','#bIron'],s:['wire','#bWire'],m:['shake','#bShake']};
+holdBtn('#bIron','iron');holdBtn('#bWire','wire');holdBtn('#bShake','shake');
+$('#bLatch').onclick=()=>setLatch(!latch);setLatch(latch);
 addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const t=e.target&&e.target.tagName;if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;const k=e.key.toLowerCase();
   if(KEYS[k]){u[KEYS[k][0]]=true;$(KEYS[k][1]).classList.add('on')}else if('1234'.includes(k)&&k.length===1)select(+k-1)});
 addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(KEYS[k]){u[KEYS[k][0]]=false;$(KEYS[k][1]).classList.remove('on')}});
