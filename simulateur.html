@@ -134,6 +134,14 @@ footer{color:var(--muted);font-size:12px;padding:6px 12px 24px;text-align:center
 @media(max-width:900px){.hud{grid-template-columns:1fr 1fr}.cols{grid-template-columns:1fr}}
 @media(max-width:560px){.hud{grid-template-columns:1fr}.ov{max-width:60%}.ov.h{top:56px}}
 
+.coach{border-left:4px solid var(--warn);margin-bottom:10px}
+.coach h2{font-size:16px;margin:0 0 6px}.coach h4{margin:4px 0;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.coach ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.45}.coach li{margin-bottom:4px}
+.coach .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+.coach .row{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.coach button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+@media(max-width:700px){.coach .cgrid{grid-template-columns:1fr}}
+
 body{font-size:15px}
 .wrap{max-width:1100px}
 nav.tabs2{position:sticky;top:0;z-index:30;background:#ffffffee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
@@ -284,6 +292,14 @@ nav.tabs2 a{font-size:14.5px;padding:12px 16px}
   </div>
   </div>
 
+  <div class="panel coach" id="coach" hidden>
+    <h2>Coach · <span id="cTitle"></span></h2>
+    <div class="cgrid">
+      <div><h4>Ce qui s’est passé</h4><ul id="cWhy"></ul></div>
+      <div><h4>Comment corriger</h4><ul id="cFix"></ul></div>
+    </div>
+    <div class="row" id="cAct"></div>
+  </div>
   <div class="hud">
     <div class="bay">
       <h3><span>Étape 1 · Température</span><span class="badge b-cold" id="tBadge">froid</span></h3>
@@ -614,7 +630,7 @@ const RES={
  disturbed:{n:'Brasure perturbée',tag:'bad',short:'PERTURBÉE ✗',d:'La carte a bougé pendant la solidification : fissures internes, surface grisâtre et granuleuse.'}
 };
 function finish(i,key){
-  const j=joints[i];if(j.res)return;j.res=key;
+  const j=joints[i];if(j.res)return;j.res=key;j.dg={tipQ:tip.Q};
   const m=Phys.measures(j,P);
   journal.unshift({i:i+1,key,c:j.tc,m,alloy:`${P.A.n} · Ø${S.wireD} mm · ${S.set} °C · ${S.power} W`});
   renderLog();updateChips();if(i===sel)showResult();
@@ -629,7 +645,97 @@ function updateChips(){
   [...chips.children].forEach((b,i)=>{const j=joints[i];b.className='pchip'+(i===sel?' sel':'')+(j.res?(j.res==='good'?' ok':' ko'):'')});
   $('#score').textContent=`Réussies : ${joints.filter(j=>j.res==='good').length} / 4`;
 }
-function showResult(){
+
+/* ---------- coach : diagnostic et conseils après chaque essai ---------- */
+const fs=(x,d)=>x.toFixed(d===undefined?1:d).replace('.',',');
+function coach(i,key){
+  const j=joints[i],m=Phys.measures(j,P),e=Phys.estimate(i,P),L=liq(),why=[],fix=[],set={};
+  const vr=VR,mid=(vr[0]+vr[1])/2,rate=P.vfeed,tq=(j.dg&&j.dg.tipQ)||tip.Q;
+  const big=i>=2,padN=Phys.CFG[i].n.toLowerCase();
+  const raise=d=>{set.set=Math.min(420,S.set+d)};
+  const lower=d=>{set.set=Math.max(250,S.set-d)};
+  const cleanTip=()=>{if(tq<.6){why.push(`La panne était ${tq>.4?'ternie':'oxydée'} (${Math.round(tq*100)} %) : elle transmet mal la chaleur.`);fix.push('Nettoyez et étamez la panne (bouton « Éponge + étamage ») avant chaque joint.')}};
+  const needFlux=()=>{if(S.flux==='none'){why.push('Le fil ne contient pas de flux : l’oxyde du pad et de la patte n’est pas éliminé.');fix.push('Utilisez un fil avec âme en flux, ou ajoutez du flux gel.');set.flux='core'}else if(S.pad==='old'||j.O>.25){why.push(`Il restait ${Math.round(j.O*100)} % d’oxyde : le flux s’est épuisé avant de nettoyer le pad.`);fix.push('Ajoutez du flux gel (réglage « Flux ») et ne chauffez pas trop longtemps avant d’apporter le fil.');if(S.flux!=='gel')set.flux='gel'}};
+  const hotNeeded=()=>{
+    if(e.tm==null){why.push(`Avec ces réglages le ${padN} n’atteint jamais la fusion (${L} °C) : il plafonne vers ${Math.round(e.tmax)} °C.`);
+      if(S.set<420){raise(40);fix.push(`Montez la consigne vers ${set.set} °C.`)}
+      if(S.tip!=='chisel'){set.tip='chisel';fix.push('Prenez une panne plus large (burin) : plus de surface de contact, plus de chaleur transmise.')}
+      if(S.power<80){set.power=80;fix.push('Une station plus puissante (80 W) limite la chute de température de la pointe au contact.')}
+    }else{why.push(`Le ${padN} a plafonné à ${Math.round(j.tmax)} °C pour une fusion à ${L} °C.`);
+      fix.push(`Laissez le fer en place environ ${fs(e.tm+.5)} s avant d’apporter l’alliage : c’est le temps nécessaire pour ce pad.`);
+      if(big)fix.push('Ce pad dissipe beaucoup de chaleur : posez la panne sur le pad ET la patte, et chauffez plus longtemps.');}
+  };
+  switch(key){
+  case 'cold':
+    if(S.flux==='none'||Math.min(j.Tp,j.Tl)>=L+5||j.tmax>=L+20){ // pad chaud mais l'alliage ne mouille pas
+      if(j.tmax>=L+5)why.push(`Le pad avait atteint ${Math.round(j.tmax)} °C (fusion à ${L} °C) mais l’alliage n’a pas mouillé : l’angle reste de ${Math.round(m.theta)}°.`);
+      needFlux();
+    }
+    if(j.tmax<L+5)hotNeeded();
+    cleanTip();
+    if(!fix.length){why.push('L’alliage est arrivé avant que le pad ait atteint la fusion : il se fige en boule au lieu de mouiller.');fix.push(`Posez d’abord le fer, attendez environ ${fs((e.tm||2)+.5)} s (le pad doit dépasser ${L} °C), puis apportez l’alliage entre la panne et la patte.`);fix.push('Observez la température du pad : l’alliage ne doit toucher que lorsque le badge indique « fond ».')}
+    break;
+  case 'dry':
+    why.push(`Mouillage partiel : angle ${Math.round(m.theta)}°, trou rempli à ${Math.round(m.fill*100)} %, couche intermétallique ${fs(m.imc)} µm.`);
+    if(j.tc<2.5)fix.push(`Contact trop court (${fs(j.tc)} s) : maintenez le fer 2 à 4 s pour que l’alliage mouille et remplisse le trou.`);
+    if(m.imc<.5)fix.push('Joint trop peu chauffé pour former la couche intermétallique : chauffez un peu plus longtemps après la fusion.');
+    needFlux();cleanTip();
+    if(P.A.thc>40){why.push(`${P.A.n} mouille mal (θ ≈ ${P.A.thc}°) : la marge est étroite.`);raise(20);fix.push('Avec cet alliage, augmentez légèrement la consigne ou essayez un alliage qui mouille mieux (SnPb, SAC305).')}
+    else if(!fix.length)fix.push('Chauffez un peu plus et apportez l’alliage sur le pad et la patte à la fois.');
+    break;
+  case 'few':
+    why.push(`Volume déposé : ${fs(m.V)} mm³, il en faut au moins ${fs(vr[0])} mm³ pour remplir le trou et former le cordon.`);
+    fix.push(`Gardez le fil au contact environ ${fs(Math.max(.3,(mid-m.V)/rate))} s de plus (volume visé ≈ ${fs(mid)} mm³).`);
+    if(S.wireD<.7){why.push(`Le fil Ø ${fs(S.wireD)} mm apporte peu d’alliage par seconde (${fs(rate)} mm³/s).`);fix.push('Un fil plus gros (Ø 0,8 mm) apporte la quantité voulue plus vite, donc avec moins de chaleur subie.');set.wireD=.8}
+    break;
+  case 'excess':
+    why.push(`Volume déposé : ${fs(m.V)} mm³ pour une plage utile de ${fs(vr[0])} à ${fs(vr[1])} mm³.`);
+    fix.push(`Relâchez l’alliage plus tôt : environ ${fs(mid/rate)} s d’apport suffisent avec ce fil (${fs(rate)} mm³/s).`);
+    if(S.wireD>1){why.push(`Le fil Ø ${fs(S.wireD)} mm dépose très vite : quelques dixièmes de seconde de trop font déborder.`);fix.push('Un fil plus fin (Ø 0,8 mm) rend le dosage plus facile.');set.wireD=.8}
+    fix.push('Retirez d’abord le fil, puis le fer.');
+    break;
+  case 'overheat':
+    why.push(`Joint trop chauffé : pad jusqu’à ${Math.round(j.tmax)} °C, contact ${fs(j.tc)} s, couche intermétallique ${fs(m.imc)} µm${j.D>.55?`, pad dégradé à ${Math.round(j.D*100)} %`:''}.`);
+    why.push('Une couche intermétallique épaisse est dure mais cassante, et la résine du circuit fatigue.');
+    if(j.tc>6)fix.push(`Réduisez le contact : ${fs(j.tc)} s est trop long, visez 2 à 5 s au total.`);
+    if(S.set>340||j.tmax>L+110){lower(30);fix.push(`Baissez la consigne vers ${set.set} °C : à température élevée la couche intermétallique grossit très vite.`)}
+    fix.push('Retirez le fer dès que l’alliage a mouillé et rempli le trou.');
+    break;
+  case 'lifted':
+    why.push(`Le pad s’est décollé après ${fs(j.tc)} s de chauffe : la résine ne tient pas une chauffe prolongée à ${Math.round(j.tmax)} °C.`);
+    if(e.td!=null)why.push(`Avec ces réglages, un fer tenu seul sur ce pad le décolle en ${Math.round(e.td)} s environ.`);
+    fix.push(`Retirez le fer avant ${e.td!=null?Math.max(2,Math.round(e.td*.6)):8} s : si l’alliage n’a pas fondu, c’est que le réglage est mauvais, pas qu’il faut insister.`);
+    if(S.set>340){lower(40);fix.push(`Baissez la consigne vers ${set.set} °C.`)}
+    if(S.tip!=='chisel'){set.tip='chisel';fix.push('Une panne plus large chauffe plus vite à température plus basse.')}
+    cleanTip();
+    break;
+  case 'disturbed':
+    why.push('La carte a bougé (bouton « Bouger ») pendant que l’alliage se solidifiait : des fissures se forment dans le joint.');
+    fix.push('Ne touchez ni la carte ni la patte tant que l’alliage est brillant et pâteux : laissez refroidir 2 à 3 s après avoir retiré le fer.');
+    fix.push('Un support mains libres, comme celui du simulateur, évite ce défaut.');
+    break;
+  }
+  return {why,fix,set};
+}
+let coachSet=null;
+function showCoach(){
+  const j=joints[sel],box=$('#coach');
+  if(!j.res||j.res==='good'){box.hidden=true;return}
+  const c=coach(sel,j.res);coachSet=c.set;
+  $('#cTitle').textContent=`pad ${sel+1} · ${RES[j.res].n.toLowerCase()}`;
+  $('#cWhy').innerHTML=c.why.map(t=>`<li>${t}</li>`).join('');
+  $('#cFix').innerHTML=c.fix.map(t=>`<li>${t}</li>`).join('');
+  const act=$('#cAct');act.innerHTML='';
+  const d=[];
+  if(c.set.set!==undefined)d.push(`consigne ${c.set.set} °C`);
+  if(c.set.tip)d.push('panne burin');if(c.set.power)d.push(c.set.power+' W');
+  if(c.set.flux)d.push(c.set.flux==='gel'?'flux gel':'fil avec flux');
+  if(c.set.wireD)d.push('fil Ø '+fs(c.set.wireD));
+  if(d.length){const b=document.createElement('button');b.className='primary';b.textContent='Appliquer : '+d.join(', ');b.onclick=()=>{S=Object.assign({},S,coachSet);writeCtl();applySettings();$('#presetNote').innerHTML='<b>Coach</b> : réglages conseillés appliqués, tous les pads sont remis à neuf.'};act.appendChild(b)}
+  const r=document.createElement('button');r.textContent='↺ Refaire ce pad';r.onclick=()=>resetJoint(sel);act.appendChild(r);
+  box.hidden=false;
+}
+function showResult(){showCoach();
   const j=joints[sel],b=$('#rBadge');
   if(j.res){const r=RES[j.res];$('#rName').textContent=r.n;$('#rDesc').textContent=typeof r.d==='function'?r.d():r.d;b.className='badge b-'+r.tag;b.textContent=r.tag==='ok'?'réussie':'à refaire'}
   else{$('#rName').textContent='En cours…';$('#rDesc').textContent='Le verdict tombe quand l’alliage est figé. Mesures en direct ci-dessous.';b.className='badge b-idle';b.textContent='en attente';if(!j.active){$('#rName').textContent='En attente';$('#rDesc').textContent='Choisissez un pad, chauffez-le puis apportez l’alliage.'}}
