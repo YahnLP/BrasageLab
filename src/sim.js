@@ -192,7 +192,7 @@ function coach(i,key){
   const big=i>=2,padN=`pad ${i+1} (${Phys.CFG[i].n.toLowerCase()})`;
   const raise=d=>{set.set=Math.min(420,S.set+d)};
   const lower=d=>{set.set=Math.max(250,S.set-d)};
-  const cleanTip=()=>{if(tq<.6){why.push(`La panne était ${tq>.4?'ternie':'oxydée'} (${Math.round(tq*100)} %) : elle transmet mal la chaleur.`);fix.push('Nettoyez et étamez la panne (bouton « Éponge + étamage ») avant chaque joint.')}};
+  const cleanTip=()=>{if(tq<.6){why.push(`La panne était ${tq>.4?'ternie':'oxydée'} (${Math.round(tq*100)} %) : elle transmet mal la chaleur.`);fix.push('Nettoyez et étamez la panne (bouton « Éponge ») avant chaque joint.')}};
   const needFlux=()=>{if(S.flux==='none'){why.push('Le fil ne contient pas de flux : l’oxyde du pad et de la patte n’est pas éliminé.');fix.push('Utilisez un fil avec âme en flux, ou ajoutez du flux gel.');set.flux='core'}else if(S.pad==='old'||j.O>.25){why.push(`Il restait ${Math.round(j.O*100)} % d’oxyde : le flux s’est épuisé avant de nettoyer le pad.`);fix.push('Ajoutez du flux gel (réglage « Flux ») et ne chauffez pas trop longtemps avant d’apporter le fil.');if(S.flux!=='gel')set.flux='gel'}};
   const hotNeeded=()=>{
     if(e.tm==null){why.push(`Avec ces réglages le ${padN} n’atteint jamais la fusion (${L} °C) : il plafonne vers ${Math.round(e.tmax)} °C.`);
@@ -323,12 +323,12 @@ const KEYS={c:['iron','#bIron'],s:['wire','#bWire'],m:['shake','#bShake']};
 holdBtn('#bIron','iron');holdBtn('#bWire','wire');holdBtn('#bShake','shake');
 $('#bLatch').onclick=()=>setLatch(!latch);setLatch(latch);
 addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const t=e.target&&e.target.tagName;if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;const k=e.key.toLowerCase();
-  if(KEYS[k]){u[KEYS[k][0]]=true;$(KEYS[k][1]).classList.add('on')}else if('1234'.includes(k)&&k.length===1)select(+k-1)});
+  if(k==='e'){$('#bClean').dispatchEvent(new Event('pointerdown'))}else if(KEYS[k]){u[KEYS[k][0]]=true;$(KEYS[k][1]).classList.add('on')}else if('1234'.includes(k)&&k.length===1)select(+k-1)});
 addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(KEYS[k]){u[KEYS[k][0]]=false;$(KEYS[k][1]).classList.remove('on')}});
 addEventListener('blur',()=>{for(const k in KEYS){u[KEYS[k][0]]=false;$(KEYS[k][1]).classList.remove('on')}});
 $('#resetPad').onclick=()=>resetJoint(sel);
 $('#resetAll').onclick=()=>{journal.length=0;renderLog();applySettings()};
-$('#bClean').onclick=()=>{tip.Q=1};
+$('#bClean').addEventListener('pointerdown',e=>{e.preventDefault();tip.Q=1;const b=$('#bClean');b.classList.add('on');setTimeout(()=>b.classList.remove('on'),350)});
 
 /* ---------- boucle ---------- */
 const iron=$('#sIron'),wOut=$('#wireOut'),wIn=$('#wireIn'),smoke=$('#sSmoke'),parts=[];
